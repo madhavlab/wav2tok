@@ -55,7 +55,7 @@ def collate_function3(batch):
 class DATA:
 
     def __init__(self, dataset ,same_length = False,is_triplet = False,\
-                                                  is_dict =True, single = False, clip = False, data_mode= 0 ):
+                                                  is_dict =True, single = False, clip = False, apply_augmentation = False, data_mode= 0 ):
     
          
           if is_dict:
@@ -69,7 +69,18 @@ class DATA:
           
              self.X = load(dataset)[data_mode]
           
-               
+          self.same_length = same_length
+            
+          self.is_triplet = is_triplet
+         
+          self.is_dict = is_dict
+            
+          self.single = single
+         
+          self.clip = clip 
+            
+            
+          self.apply_augmentation = apply_augmentation
           
           
     def __len__(self):
@@ -79,7 +90,7 @@ class DATA:
 
     def __getitem__(self,item):
     
-          if is_dict:
+          if self.is_dict:
           
              set = self.X[item]
              
@@ -89,17 +100,27 @@ class DATA:
              key = set[1]
              
              
-             if single:
+             if self.single:
               
                 return {'0': torch.tensor(utt)}
              
              
              utt2 = random.sample(self.dict[key],1)[0]
-             
+               
+               
+             if self.apply_augmentation :  
+               shift = random.sample(np.arange(-6,6),1)[0]  
+            
+               utt2 = librosa.effects.pitch_shift(utt2,\
+                                       sr =16000, n_steps = shift)  
+                                       
+               rate - random.sample(np.arange(0.9,1.5,0.01),1)[0]    
+                                       
+               utt2 = librosa.effects.time_stretch(utt2,  rate = rate)
              
 
              
-             if is_triplet:
+             if self.is_triplet:
              
                  nkey = random.sample([i for i in self.dict.keys() if i != key], 1)[0]
                  
@@ -107,7 +128,7 @@ class DATA:
                  
                  
              
-             if same_length :
+             if self.same_length :
              
                
                  
@@ -115,7 +136,7 @@ class DATA:
                  
                  len2 = len(utt2)
                  
-                 if is_triplet:
+                 if self.is_triplet:
                  
                     len3 = len(utt3)
                  
@@ -123,7 +144,7 @@ class DATA:
                  
                    len_ = (len1 + len2)/2
                    
-                   if is_triplet:
+                   if self.is_triplet:
                    
                       len_ = (len1+ len2 + len3)/2  
                  
@@ -131,14 +152,14 @@ class DATA:
                  
                    utt2 = librosa.effects.time_stretch(utt2, rate = len_/len2)
                     
-                   if is_triplet:
+                   if self.is_triplet:
                    
                       utt3 = librosa.effects.time_stretch(utt2, rate = len_/len3)
                  
                        
                  
                  
-             if not is_triplet:
+             if not self.is_triplet:
                  
                 
                 return {'0': torch.tensor(utt), '1': torch.tensor(utt2)}
@@ -153,7 +174,7 @@ class DATA:
              
               utt = librosa.load(utt, sr = 16000, mono = True)
               
-              if clip:
+              if self.clip:
                 clip_ = 3*16000
               
                 if len(utt) > clip_:
@@ -165,12 +186,14 @@ class DATA:
                                        if len(utt[i*clip_: (i+1)*clip_]) !< 2*16000 ], 1)[0]
                                        
                                        
-              shift = random.sample(np.arange(3,9),1)[0]                     
+              shift = random.sample(np.arange(-6,6),1)[0]  
+            
               utt2 = librosa.effects.pitch_shift(utt,\
                                        sr =16000, n_steps = shift)  
                                        
+              rate - random.sample(np.arange(0.9,1.5,0.01),1)[0]    
                                        
-              utt2 = librosa.effects.time_stretch(utt,  rate = 1.2)
+              utt2 = librosa.effects.time_stretch(utt2,  rate = rate)
                   
                   
               return {'0': torch.tensor(utt), '1': torch.tensor(utt2)}
@@ -183,14 +206,14 @@ class DATA:
               
               
 
-def DATALOADER(dataset, is_dict= True, is_triplet= False, single = False, same_length= False, clip = False, BATCH_SIZE = 4, shuffle = [True, True]):
+def DATALOADER(dataset, is_dict= True, is_triplet= False, single = False, same_length= False, clip = False, apply_augmentation = False, BATCH_SIZE = 4, shuffle = [True, True]):
 
 
    #dataset = load('DATASET_STFT')
 
-   train, test  = DATA(dataset,same_length ,is_triplet, is_dict,clip, 0), \
+   train, test  = DATA(dataset,same_length ,is_triplet, is_dict,clip,apply_augmentation, 0), \
    
-                    DATA(dataset,same_length ,is_triplet, is_dict,clip,1)
+                    DATA(dataset,same_length ,is_triplet, is_dict,clip, apply_augmentation,1)
                     
 
 
@@ -332,9 +355,12 @@ def eval_function(dataloader,is_triplet, single, model,epochs,  device= 'cuda',d
                                                       
 
 
-def Trainer2(model, optimizer, dataset, is_dict= True, is_triplet= False, single = False, same_length= False, clip = False, epoch_start = 0,num_steps = 5000,scheduler = None, EPOCHS=100, patience= 5, name = None, device = 'cuda',debug = 0, batch_size = 4, ):
+def Trainer2(model, optimizer, dataset, is_dict= True, is_triplet= False, single = False, same_length= False, apply_augmentation = False, clip = False, epoch_start = 0,num_steps = 5000,scheduler = None, EPOCHS=100, patience= 5, name = None, device = 'cuda',debug = 0, batch_size = 4, ):
 
-      train_dataloader, test_dataloader, num_iter = DATALOADER(dataset= dataset, is_dict= is_dict , is_triplet= is_triplet, single = single, same_length= same_length, clip = clip , BATCH_SIZE = batch_size )
+      train_dataloader, test_dataloader, num_iter = DATALOADER(dataset= dataset, is_dict= is_dict , is_triplet= is_triplet, \
+                                                               
+                                                               single = single, same_length= same_length, \
+                                                               apply_augmentation = apply_augmentation, clip = clip , BATCH_SIZE = batch_size )
       cnt = 0
 
       step_counter= epoch_start * num_iter
