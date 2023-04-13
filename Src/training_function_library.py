@@ -55,19 +55,19 @@ def collate_function3(batch):
 class DATA:
 
     def __init__(self, dataset ,same_length = False,is_triplet = False,\
-                                                  is_dict =True, single = False, train = 0 ):
+                                                  is_dict =True, single = False, clip = False, data_mode= 0 ):
     
          
           if is_dict:
                     
                       
-             self.dict = load(dataset)[train]
+             self.dict = load(dataset)[data_mode]
              
              self.X = gen_data_from_dict(self.dict)
              
           else:
           
-             self.X = load(dataset)[train]
+             self.X = load(dataset)[data_mode]
           
                
           
@@ -153,15 +153,16 @@ class DATA:
              
               utt = librosa.load(utt, sr = 16000, mono = True)
               
-              clip = 3*16000
+              if clip:
+                clip_ = 3*16000
               
-              if len(utt) > clip:
+                if len(utt) > clip_:
               
-                  slices = len(utt)//clip
+                  slices = len(utt)//clip_
                   
-                  utt = random.sample([utt[i*clip: (i+1)*clip] for i in slices \
+                  utt = random.sample([utt[i*clip_: (i+1)*clip_] for i in slices \
                   
-                                       if len(utt[i*clip: (i+1)*clip]) !< 2*16000 ], 1)[0]
+                                       if len(utt[i*clip_: (i+1)*clip_]) !< 2*16000 ], 1)[0]
                                        
                                        
               shift = random.sample(np.arange(3,9),1)[0]                     
@@ -182,14 +183,14 @@ class DATA:
               
               
 
-def DATALOADER(dataset, is_dict= True, is_triplet= False, single = False, same_length= False, BATCH_SIZE = 4, shuffle = [True, True]):
+def DATALOADER(dataset, is_dict= True, is_triplet= False, single = False, same_length= False, clip = False, BATCH_SIZE = 4, shuffle = [True, True]):
 
 
    #dataset = load('DATASET_STFT')
 
-   train, test  = DATA(dataset,same_length ,is_triplet, is_dict, 0), \
+   train, test  = DATA(dataset,same_length ,is_triplet, is_dict,clip, 0), \
    
-                    DATA(dataset,same_length ,is_triplet, is_dict,1)
+                    DATA(dataset,same_length ,is_triplet, is_dict,clip,1)
                     
 
 
@@ -244,14 +245,14 @@ def train_function(dataloader,is_triplet, single,model,optimizer,step_counter,ep
 
            if single:
 
-             loss, logs =  model(x1) 
+             loss, logs =  model(x1, step_counter) 
              
            else:
              loss, logs = model(x1,x2, step_counter)
                
            if is_triplet:
            
-             loss , logs = model(x1,x2,x3)
+             loss , logs = model(x1,x2,x3, step_counter)
              
 
            loss.backward()
@@ -331,9 +332,9 @@ def eval_function(dataloader,is_triplet, single, model,epochs,  device= 'cuda',d
                                                       
 
 
-def Trainer2(model, optimizer,  is_dict= True, is_triplet= False, single = False, same_length= False,  epoch_start = 0,num_steps = 5000,scheduler = None, EPOCHS=100, patience= 5, name = None, device = 'cuda',debug = 0, batch_size = 4, ):
+def Trainer2(model, optimizer,  is_dict= True, is_triplet= False, single = False, same_length= False, clip = False, epoch_start = 0,num_steps = 5000,scheduler = None, EPOCHS=100, patience= 5, name = None, device = 'cuda',debug = 0, batch_size = 4, ):
 
-      train_dataloader, test_dataloader, num_iter = DATALOADER(BATCH_SIZE = batch_size )
+      train_dataloader, test_dataloader, num_iter = DATALOADER(dataset= dataset, is_dict= is_dict , is_triplet= is_triplet, single = single, same_length= same_length, clip = clip , BATCH_SIZE = batch_size )
       cnt = 0
 
       step_counter= epoch_start * num_iter
