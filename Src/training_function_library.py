@@ -247,7 +247,7 @@ def train_function(dataloader,is_triplet, single,model,optimizer,step_counter,ep
              loss, logs =  model(x1) 
              
            else:
-             loss, logs = model(x1,x2)
+             loss, logs = model(x1,x2, step_counter)
                
            if is_triplet:
            
