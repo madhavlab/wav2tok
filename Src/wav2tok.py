@@ -371,37 +371,6 @@ class wav2tok(nn.Module):
          return z
 
 
-  def tokenize(self,x):
-
-
-      z = [self.embs(i.unsqueeze(0).to(self.device)).squeeze().detach() for i in x]
-
-      t = []
-       
-      for i in range(len(z)):
-
-            t_feats = z[i]
-
-
-       
-
-            ts = len(t_feats)
-            codes = F.normalize(self.codebook.unsqueeze(0).repeat(ts,1,1).permute(1,0,2), p =2 , dim = -1)
-
-
-
-
-
-            logits = torch.cosine_similarity(t_feats.float(), codes.float(), dim=-1).type_as(
-                                 codes
-                                    ).T
-            logits = logits/ self.temp
-
-            #print(logits.shape)
-            t.append(logits.argmax(-1)) 
-
-      return z , t
-
 
 
   def get_tokens(self,x, mfcc = False):
@@ -450,8 +419,8 @@ class wav2tok(nn.Module):
             print('Clustering')
             self.cluster(self.dataset)
    
-      z1 , t1 = self.tokenize(x1)
-      z2 , t2 = self.tokenize(x2)
+      z1 , t1 = self.get_tokens(x1)
+      z2 , t2 = self.get_tokens(x2)
       bs = len(x1)
 
       loss_ctc= [] 
