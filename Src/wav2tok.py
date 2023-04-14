@@ -121,7 +121,7 @@ class Emb(nn.Module):
 
 
 class wav2tok(nn.Module):
-  def __init__(self , input_dim , emb_dim, alpha = 0.01, beta = 0.01,temp = 0.1, dataset= 'MIR', iter_clust = 500, no_sim = False, use_cosine = False,  use_transformer = False, \
+  def __init__(self , input_dim , emb_dim, alpha = 0.01, beta = 0.01,temp = 0.1, dataset= 'MIR', iter_clust = 500, cluster_split = 0.1, no_sim = False, use_cosine = False,  use_transformer = False, \
                                        num_tokens=25, num_layers= 2, device = 'cuda:0'):
       super().__init__()
 
@@ -135,7 +135,7 @@ class wav2tok(nn.Module):
 
       self.use_transformer = use_transformer
  
-
+      self.cluster_split = cluster_split
 
       self.use_cosine = use_cosine
  
@@ -206,9 +206,10 @@ class wav2tok(nn.Module):
 
        X = []
 
+       tr = random.sample(tr, int(self.cluster_split* len(tr)))
        if dataset == 'librispeech'
 
-         tr = random.sample(tr, 300)
+
   
          for i in tr:
               a1, _  = librosa.load(i, sr = 16000)
