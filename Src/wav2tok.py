@@ -262,7 +262,7 @@ class wav2tok(nn.Module):
        
        return      
 
-  def gen_prototype(self,unique1,feats1,tokens1):
+  def gen_prototype(self,feats1,tokens1,unique1):
 
       dict1 = {}
 
@@ -426,14 +426,15 @@ class wav2tok(nn.Module):
       loss_ctc= [] 
       loss_m = []
       for i in range(bs):
-
+        s1 = torch.cat( [z1[i], z2[i]], 0)
 
 
         tks1 = torch.cat([t1[i], t2[i]], 0 )
  
         tokens1= tks1.argmax(-1)
         unique1 = torch.unique(tokens1)
-       
+        dict1 = self.gen_prototype(unique1, s1, tokens1)
+	
 
 ### ENFORCE BLANK log softmax prob as  -negative infinity 
    
