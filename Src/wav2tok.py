@@ -121,7 +121,7 @@ class Emb(nn.Module):
 
 
 class wav2tok(nn.Module):
-  def __init__(self , input_dim , emb_dim, alpha = 0.01, beta = 0.01,temp = 0.1, dataset= 'MIR', iter_clust = 500, cluster_split = 0.1, no_sim = False, use_cosine = False,  use_transformer = False, \
+  def __init__(self , input_dim , emb_dim, alpha = 0.01, beta = 0.01,temp = 0.1, dataset= 'MIR', iter_clust = 500, cluster_split = 0.1,  use_cosine = False,  use_transformer = False, \
                                        num_tokens=25, num_layers= 2, device = 'cuda:0'):
       super().__init__()
 
