@@ -117,26 +117,11 @@ class Emb(nn.Module):
             return x
 
 
-class Tok(nn.Module):
-      def __init__( self, input_dim , num_tok, ):
-
-           super().__init__()
-
-           self.input_dim = input_dim
-           self.num_tok = num_tok
 
 
-           self.toks=  nn.Linear(self.input_dim, self.num_tok, bias = False)
- 
-      def forward(self, x):
 
-
-            toks = self.toks(x)
-            return toks 
-
-
-class Wav2Tok(nn.Module):
-  def __init__(self , input_dim , emb_dim, alpha = 0.01, beta = 0.01,dataset= 'MIR', no_sim = False, use_cosine = False,  use_transformer = False, \
+class wav2tok(nn.Module):
+  def __init__(self , input_dim , emb_dim, alpha = 0.01, beta = 0.01,temp = 0.1, dataset= 'MIR', iter_clust = 500, no_sim = False, use_cosine = False,  use_transformer = False, \
                                        num_tokens=25, num_layers= 2, device = 'cuda:0'):
       super().__init__()
 
@@ -165,17 +150,16 @@ class Wav2Tok(nn.Module):
       else:
            self.embs= TransformerEncoder(self.input_dim, self.emb_dim)
 
-      self.toks =  Tok(self.emb_dim, self.num_toks)
+      self.codebook = nn.Parameter(torch.FloatTensor(self.num_toks,self.emb_dim).uniform_())
 
-
-      self.class_dis = nn.Linear(self.emb_dim , 2)
-
+      
+      self.class_dis = nn.Linear(self.emb_dim ,1)
       self.loss = nn.CrossEntropyLoss()
-      self.temp = 0.05
+      self.temp = temp
    
       self.dataset = dataset
 
-
+      self.iter_clust = iter_clust
       self.device = device
 
 
@@ -184,14 +168,11 @@ class Wav2Tok(nn.Module):
   def initialize_classifier(self, cluster_centers):
         save(cluster_centers, 'Cluster_center_forModel')
 
-        self.toks.toks.weight = nn.Parameter(F.normalize(torch.Tensor(cluster_centers),\
+        self.codebook = nn.Parameter(F.normalize(torch.Tensor(cluster_centers),\
                          p  =2 , dim= -1).to(self.device))
 
         print('Model Initialized')
-       
-       # for params in self.toks.parameters():
-        #    params.requires_grad =False 
-        #print('Model Initialized')
+
 
 
 
@@ -321,37 +302,48 @@ class Wav2Tok(nn.Module):
        x= torch.cat(x, 0)
        lab = torch.tensor(lab).to(self.device)
 
-
-       x= self.class_dis(x)
+       if not self.use_cosine:
+             x= self.class_dis(x)
+       x = x/ self.temp
        loss = self.loss(x,lab)
        return loss
 
 
 
 
-  def inter_dict_weights(self, x, lab, dict1):
-       weights =  F.normalize(self.toks.toks.weight.detach(), p= 2, dim = -1)
 
+  def inter_dict_weights(self, x, lab, dict1):
+       codes =  F.normalize(self.codebook, p= 2, dim = -1)
+       #print(weights.shape)
        for i in dict1.keys():
            el = dict1[i]
 
+		
+           if self.use_cosine:
+	      diff = torch.cosine_similarity(el.float(), codes.float(), dim=-1).type_as(
+                                codes
+                                  )
+      
+	
+	     
+		
+           else: 		
+              el = el.repeat(self.num_toks, 1)
 
-           for j in range(len(weights)):
-              el2 = weights[j]
-
-              diff = torch.abs(el  - el2)
+           
+              diff = torch.abs(el - codes)   
+  
               diff = diff.unsqueeze(0)
 
 
-              x.append(diff)
-              if i == j:
-                      lab.append(1)
-              else:
-
-                    lab.append(0)
+            x.append(diff)
+  
+            lab.append(i)
+  
 
 
        return x, lab
+
 
 
   def ctc_loss_cal(self, t, tok) :
@@ -368,8 +360,8 @@ class Wav2Tok(nn.Module):
 
 
 
-         loss =  ctc_loss
-         return loss
+      
+         return ctc_loss
 
   def get_embs(self, x):
 
@@ -381,9 +373,31 @@ class Wav2Tok(nn.Module):
   def tokenize(self,x):
 
 
-      z = [self.embs(i.unsqueeze(0).to(self.device)).squeeze() for i in x]
+      z = [self.embs(i.unsqueeze(0).to(self.device)).squeeze().detach() for i in x]
 
-      t = [self.toks(i) for i in z] 
+      t = []
+       
+      for i in range(len(z)):
+
+            t_feats = z[i]
+
+
+       
+
+            ts = len(t_feats)
+            codes = F.normalize(self.codebook.unsqueeze(0).repeat(ts,1,1).permute(1,0,2), p =2 , dim = -1)
+
+
+
+
+
+            logits = torch.cosine_similarity(t_feats.float(), codes.float(), dim=-1).type_as(
+                                 codes
+                                    ).T
+            logits = logits/ self.temp
+
+            #print(logits.shape)
+            t.append(logits.argmax(-1)) 
 
       return z , t
 
@@ -393,8 +407,30 @@ class Wav2Tok(nn.Module):
       x = [torch.tensor(self.get_feats(i.cpu().numpy(), mfcc = mfcc)) for i in x]
       z = [self.embs(i.unsqueeze(0).to(self.device)).squeeze().detach() for i in x]
 
-      t = [self.toks(i) for i in z] 
-      t = [i.argmax(-1).cpu().numpy() for i in t]
+      t = []
+       
+      for i in range(len(z)):
+
+            t_feats = z[i]
+
+
+       
+
+            ts = len(t_feats)
+            codes = F.normalize(self.codebook.unsqueeze(0).repeat(ts,1,1).permute(1,0,2), p =2 , dim = -1)
+
+
+
+
+
+            logits = torch.cosine_similarity(t_feats.float(), codes.float(), dim=-1).type_as(
+                                 codes
+                                    ).T
+            logits = logits/ self.temp
+
+            #print(logits.shape)
+            t.append(logits.argmax(-1)) 
+
       
       return z , t
 
@@ -409,9 +445,9 @@ class Wav2Tok(nn.Module):
 
 
       if steps is not None:
-         if (steps+ 1)% 150 == 0:
+         if steps % self.iter_clust == 0:
             print('Clustering')
-            self.cluster()
+            self.cluster(self.dataset)
    
       z1 , t1 = self.tokenize(x1)
       z2 , t2 = self.tokenize(x2)
@@ -451,10 +487,10 @@ class Wav2Tok(nn.Module):
 
         if len(z1[i]) >= len(t2[i]):
 
-             l_ctc1 = self.ctc_loss_cal(logits1,targs1,25)
+             l_ctc1 = self.ctc_loss_cal(logits1,targs1)
 
         if len(z2[i]) >= len(t1[i]):
-             l_ctc2 = self.ctc_loss_cal(logits2,targs2,25)  
+             l_ctc2 = self.ctc_loss_cal(logits2,targs2)  
 
         l_ctc = self.alpha*l_ctc1 + self.beta * l_ctc2
 
@@ -464,18 +500,18 @@ class Wav2Tok(nn.Module):
         loss_ = self.matching_loss_cal(dict1) 
 
         loss_m.append(loss_) 
-        loss_ctc.append(l_ctc/2)   
+        loss_ctc.append(l_ctc)   
 
 
       loss_m = sum(loss_m)/len(loss_m)
       loss_ctc = sum(loss_ctc)/len(loss_ctc)
-      loss = loss_m + 0.001*loss_ctc
+      loss = loss_m + loss_ctc
       loss =  sum(loss)/len(loss)
       logs['loss'] = loss.item()
       logs['matching'] = loss_m.item()
       logs['ctc'] = loss_ctc.item()
 
-      logs['unique x1 '] = unique1
+      logs['unique x1 '] = unique1.detach().cpu().numpy()
 
 
 
