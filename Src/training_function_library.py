@@ -355,7 +355,9 @@ def eval_function(dataloader,is_triplet, single, model,epochs,  device= 'cuda',d
                                                       
 
 
-def Trainer(model, optimizer, dataset, is_dict= True, is_triplet= False, single = False, same_length= False, apply_augmentation = False, clip = False, epoch_start = 0,scheduler = None, EPOCHS=100, patience= 5, name = None, device = 'cuda',debug = 0, batch_size = 4, ):
+def Trainer(model, optimizer, dataset, is_dict= True, is_triplet= False, single = False, same_length= False, \
+               apply_augmentation = False, clip = False, epoch_start = 0,scheduler = None, EPOCHS=100, \
+               autosave= 5, patience= 5, name = None, device = 'cuda',debug = 0, batch_size = 4, ):
 
       train_dataloader, test_dataloader, num_iter = DATALOADER(dataset= dataset, is_dict= is_dict , is_triplet= is_triplet, \
                                                                
@@ -419,7 +421,7 @@ def Trainer(model, optimizer, dataset, is_dict= True, is_triplet= False, single 
               else:
                    cnt += 1
 
-              if epochs % 5 == 0 :
+              if epochs % autosave == 0 :
                     print(f'\n|||||SAVING MODEL at epoch {epochs} |||||\n')
                     save_weights(model, f'{epochs}', name = name)
               if cnt == patience:
