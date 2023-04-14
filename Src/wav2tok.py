@@ -136,7 +136,7 @@ class Tok(nn.Module):
 
 
 class Wav2Tok(nn.Module):
-  def __init__(self , input_dim , emb_dim, alpha = 0.01, beta = 0.01,dataset= 'MIR', no_sim = False, use_cosine = False, mfcc_cluster = False, use_transformer = False, \
+  def __init__(self , input_dim , emb_dim, alpha = 0.01, beta = 0.01,dataset= 'MIR', no_sim = False, use_cosine = False,  use_transformer = False, \
                                        num_tokens=25, num_layers= 2, device = 'cuda:0'):
       super().__init__()
 
@@ -150,7 +150,7 @@ class Wav2Tok(nn.Module):
 
       self.use_transformer = use_transformer
  
-      self.mfcc_cluster = mfcc_cluster 
+
 
       self.use_cosine = use_cosine
  
