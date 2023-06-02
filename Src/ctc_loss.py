@@ -1,0 +1,72 @@
+import torch
+
+#@torch.jit.script
+def ctc_loss(log_probs : torch.Tensor, targets : torch.Tensor, input_lengths : torch.Tensor, target_lengths : torch.Tensor, blank : int = 0, reduction : str = 'mean', finfo_min_fp32: float = torch.finfo(torch.float32).min, finfo_min_fp16: float = torch.finfo(torch.float16).min, alignment : bool = False):
+	input_time_size, batch_size = log_probs.shape[:2]
+	B = torch.arange(batch_size, device = input_lengths.device)
+	#print(targets.shape)
+	_t_a_r_g_e_t_s_ = torch.cat([targets, targets[:, :1]], dim = -1)
+	_t_a_r_g_e_t_s_ = torch.stack([torch.full_like(_t_a_r_g_e_t_s_, blank), _t_a_r_g_e_t_s_], dim = -1).flatten(start_dim = -2)
+	
+	diff_labels = torch.cat([torch.as_tensor([[False, False]], device = targets.device).expand(batch_size, -1), _t_a_r_g_e_t_s_[:, 2:] != _t_a_r_g_e_t_s_[:, :-2]], dim = 1)
+	
+	# if zero = float('-inf') is used as neutral element, custom logsumexp must be used to avoid nan grad in torch.logsumexp
+	
+	zero_padding, zero = 2, torch.tensor(finfo_min_fp16 if log_probs.dtype == torch.float16 else finfo_min_fp32, device = log_probs.device, dtype = log_probs.dtype)
+	log_probs_ = log_probs.gather(-1, _t_a_r_g_e_t_s_.expand(input_time_size, -1, -1))
+	log_alpha = torch.full((input_time_size, batch_size, zero_padding + _t_a_r_g_e_t_s_.shape[-1]), zero, device = log_probs.device, dtype = log_probs.dtype)
+	log_alpha[0, :, zero_padding + 0] = log_probs[0, :, blank]
+	log_alpha[0, :, zero_padding + 1] = log_probs[0, B, _t_a_r_g_e_t_s_[:, 1]]
+	# log_alpha[1:, :, zero_padding:] = log_probs.gather(-1, _t_a_r_g_e_t_s_.expand(len(log_probs), -1, -1))[1:]
+	for t in range(1, input_time_size):
+		log_alpha[t, :, 2:] = log_probs_[t] + logadd(log_alpha[t - 1, :, 2:], log_alpha[t - 1, :, 1:-1], torch.where(diff_labels, log_alpha[t - 1, :, :-2], zero))
+
+	l1l2 = log_alpha[input_lengths - 1, B].gather(-1, torch.stack([zero_padding + target_lengths * 2 - 1, zero_padding + target_lengths * 2], dim = -1)) 
+	loss = -torch.logsumexp(l1l2, dim = -1)
+	return loss
+
+	if not alignment:
+		return loss
+	
+	# below is for debugging, for real alignment use more efficient the distinct ctc_alignment(...) method
+	path = torch.zeros(len(log_alpha), len(B), device = log_alpha.device, dtype = torch.int64)
+	path[input_lengths - 1, B] = zero_padding + 2 * target_lengths - 1 + l1l2.max(dim = -1).indices
+	for t, indices in reversed(list(enumerate(path))[1:]):
+		indices_ = torch.stack([(indices - 2) * diff_labels[B, (indices - zero_padding).clamp(min = 0)], (indices - 1).clamp(min = 0), indices], dim = -1)
+		path[t - 1] += (indices - 2 + log_alpha[t - 1, B].gather(-1, indices_).max(dim = -1).indices).clamp(min = 0)
+	return torch.zeros_like(log_alpha).scatter_(-1, path.unsqueeze(-1), 1.0)[..., (zero_padding + 1)::2]
+
+
+
+
+def logadd(x0, x1, x2):
+	# produces nan gradients in backward if -inf log-space zero element is used https://github.com/pytorch/pytorch/issues/31829
+	#return torch.logsumexp(torch.stack([x0, x1, x2]), dim = 0)
+	
+	# use if -inf log-space zero element is used
+	return LogsumexpFunction.apply(x0, x1, x2)
+	
+	# produces inplace modification error https://github.com/pytorch/pytorch/issues/31819
+	#m = torch.max(torch.max(x0, x1), x2)
+	#m = m.masked_fill(torch.isinf(m), 0)
+	#res = (x0 - m).exp() + (x1 - m).exp() + (x2 - m).exp()
+	#return res.log().add(m)
+
+class LogsumexpFunction(torch.autograd.function.Function):
+	@staticmethod
+	def forward(self, x0, x1, x2):
+		m = torch.max(torch.max(x0, x1), x2)
+		m = m.masked_fill_(torch.isinf(m), 0)
+		e0 = (x0 - m).exp_()
+		e1 = (x1 - m).exp_()
+		e2 = (x2 - m).exp_()
+		e = (e0 + e1).add_(e2).clamp_(min = 1e-16)
+		self.save_for_backward(e0, e1, e2, e)
+		return e.log_().add_(m)
+
+	@staticmethod
+	def backward(self, grad_output):
+		e0, e1, e2, e = self.saved_tensors
+		g = grad_output / e
+		return g * e0, g * e1, g * e2
+
