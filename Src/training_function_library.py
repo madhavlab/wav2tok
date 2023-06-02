@@ -31,8 +31,8 @@ def gen_data_from_dict(dict_):
 
 def collate_function(batch):
 
-    data1 = [item[0] for item in batch]
-    data2 = [item[1] for item in batch]
+    data1 = [item['0'] for item in batch]
+    data2 = [item['1'] for item in batch]
     return [data1, data2]          
           
           
@@ -162,6 +162,7 @@ class DATA:
              if not self.is_triplet:
                  
                 
+                
                 return {'0': torch.tensor(utt), '1': torch.tensor(utt2)}
                 
              else:
@@ -172,7 +173,7 @@ class DATA:
               utt = self.X[item]   
             
              
-              utt = librosa.load(utt, sr = 16000, mono = True)
+              utt, _ = librosa.load(utt, sr = 16000, mono = True)
               
               if self.clip:
                 clip_ = 3*16000
@@ -181,20 +182,24 @@ class DATA:
               
                   slices = len(utt)//clip_
                   
-                  utt = random.sample([utt[i*clip_: (i+1)*clip_] for i in slices \
+                  utt = random.sample([utt[i*clip_: (i+1)*clip_] for i in range(slices) \
                   
-                                       if len(utt[i*clip_: (i+1)*clip_]) !< 2*16000 ], 1)[0]
+                                       if (len(utt[i*clip_: (i+1)*clip_]) > 2*16000) ], 1)[0]
+              else: 
+                  utt = uttS
                                        
+             # print(utt.shape)
                                        
-              shift = random.sample(np.arange(-6,6),1)[0]  
+              shift = random.sample(np.arange(-6,6).tolist(),1)[0]  
             
               utt2 = librosa.effects.pitch_shift(utt,\
                                        sr =16000, n_steps = shift)  
                                        
-              rate - random.sample(np.arange(0.9,1.5,0.01),1)[0]    
+              rate = random.sample(np.arange(0.9,1.5,0.01).tolist(),1)[0]    
                                        
               utt2 = librosa.effects.time_stretch(utt2,  rate = rate)
                   
+             # print(utt2.shape)
                   
               return {'0': torch.tensor(utt), '1': torch.tensor(utt2)}
               
@@ -211,9 +216,7 @@ def DATALOADER(dataset, is_dict= True, is_triplet= False, single = False, same_l
 
    #dataset = load('DATASET_STFT')
 
-   train, test  = DATA(dataset,same_length ,is_triplet, is_dict,clip,apply_augmentation, 0), \
-   
-                    DATA(dataset,same_length ,is_triplet, is_dict,clip, apply_augmentation,1)
+   train, test  = DATA(dataset,same_length ,is_triplet, is_dict,clip,apply_augmentation, 0), DATA(dataset,same_length ,is_triplet, is_dict,clip, apply_augmentation,1)
                     
 
 
@@ -436,10 +439,5 @@ def Trainer(model, optimizer, dataset, is_dict= True, is_triplet= False, single 
                                        
              
              
-          
-    
-    
-    
-    
         
 
