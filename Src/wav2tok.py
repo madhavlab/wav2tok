@@ -14,79 +14,7 @@ from sklearn.cluster import KMeans
 
 import math
 
-
-
-
-#@torch.jit.script
-def ctc_loss(log_probs : torch.Tensor, targets : torch.Tensor, input_lengths : torch.Tensor, target_lengths : torch.Tensor, blank : int = 0, reduction : str = 'mean', finfo_min_fp32: float = torch.finfo(torch.float32).min, finfo_min_fp16: float = torch.finfo(torch.float16).min, alignment : bool = False):
-	input_time_size, batch_size = log_probs.shape[:2]
-	B = torch.arange(batch_size, device = input_lengths.device)
-	
-	_t_a_r_g_e_t_s_ = torch.cat([targets, targets[:, :1]], dim = -1)
-	_t_a_r_g_e_t_s_ = torch.stack([torch.full_like(_t_a_r_g_e_t_s_, blank), _t_a_r_g_e_t_s_], dim = -1).flatten(start_dim = -2)
-	
-	diff_labels = torch.cat([torch.as_tensor([[False, False]], device = targets.device).expand(batch_size, -1), _t_a_r_g_e_t_s_[:, 2:] != _t_a_r_g_e_t_s_[:, :-2]], dim = 1)
-	
-	# if zero = float('-inf') is used as neutral element, custom logsumexp must be used to avoid nan grad in torch.logsumexp
-	
-	zero_padding, zero = 2, torch.tensor(finfo_min_fp16 if log_probs.dtype == torch.float16 else finfo_min_fp32, device = log_probs.device, dtype = log_probs.dtype)
-	log_probs_ = log_probs.gather(-1, _t_a_r_g_e_t_s_.expand(input_time_size, -1, -1))
-	log_alpha = torch.full((input_time_size, batch_size, zero_padding + _t_a_r_g_e_t_s_.shape[-1]), zero, device = log_probs.device, dtype = log_probs.dtype)
-	log_alpha[0, :, zero_padding + 0] = log_probs[0, :, blank]
-	log_alpha[0, :, zero_padding + 1] = log_probs[0, B, _t_a_r_g_e_t_s_[:, 1]]
-	# log_alpha[1:, :, zero_padding:] = log_probs.gather(-1, _t_a_r_g_e_t_s_.expand(len(log_probs), -1, -1))[1:]
-	for t in range(1, input_time_size):
-		log_alpha[t, :, 2:] = log_probs_[t] + logadd(log_alpha[t - 1, :, 2:], log_alpha[t - 1, :, 1:-1], torch.where(diff_labels, log_alpha[t - 1, :, :-2], zero))
-
-	l1l2 = log_alpha[input_lengths - 1, B].gather(-1, torch.stack([zero_padding + target_lengths * 2 - 1, zero_padding + target_lengths * 2], dim = -1)) 
-	loss = -torch.logsumexp(l1l2, dim = -1)
-	return loss
-
-	if not alignment:
-		return loss
-	
-	# below is for debugging, for real alignment use more efficient the distinct ctc_alignment(...) method
-	path = torch.zeros(len(log_alpha), len(B), device = log_alpha.device, dtype = torch.int64)
-	path[input_lengths - 1, B] = zero_padding + 2 * target_lengths - 1 + l1l2.max(dim = -1).indices
-	for t, indices in reversed(list(enumerate(path))[1:]):
-		indices_ = torch.stack([(indices - 2) * diff_labels[B, (indices - zero_padding).clamp(min = 0)], (indices - 1).clamp(min = 0), indices], dim = -1)
-		path[t - 1] += (indices - 2 + log_alpha[t - 1, B].gather(-1, indices_).max(dim = -1).indices).clamp(min = 0)
-	return torch.zeros_like(log_alpha).scatter_(-1, path.unsqueeze(-1), 1.0)[..., (zero_padding + 1)::2]
-
-
-
-
-def logadd(x0, x1, x2):
-	# produces nan gradients in backward if -inf log-space zero element is used https://github.com/pytorch/pytorch/issues/31829
-	#return torch.logsumexp(torch.stack([x0, x1, x2]), dim = 0)
-	
-	# use if -inf log-space zero element is used
-	return LogsumexpFunction.apply(x0, x1, x2)
-	
-	# produces inplace modification error https://github.com/pytorch/pytorch/issues/31819
-	#m = torch.max(torch.max(x0, x1), x2)
-	#m = m.masked_fill(torch.isinf(m), 0)
-	#res = (x0 - m).exp() + (x1 - m).exp() + (x2 - m).exp()
-	#return res.log().add(m)
-
-class LogsumexpFunction(torch.autograd.function.Function):
-	@staticmethod
-	def forward(self, x0, x1, x2):
-		m = torch.max(torch.max(x0, x1), x2)
-		m = m.masked_fill_(torch.isinf(m), 0)
-		e0 = (x0 - m).exp_()
-		e1 = (x1 - m).exp_()
-		e2 = (x2 - m).exp_()
-		e = (e0 + e1).add_(e2).clamp_(min = 1e-16)
-		self.save_for_backward(e0, e1, e2, e)
-		return e.log_().add_(m)
-
-	@staticmethod
-	def backward(self, grad_output):
-		e0, e1, e2, e = self.saved_tensors
-		g = grad_output / e
-		return g * e0, g * e1, g * e2
-
+from ctc_loss import ctc_loss
 
 class Emb(nn.Module):
        def __init__(
@@ -121,8 +49,8 @@ class Emb(nn.Module):
 
 
 class wav2tok(nn.Module):
-  def __init__(self , input_dim , emb_dim, alpha = 0.01, beta = 0.01,temp = 0.1, dataset= 'MIR', iter_clust = 500, cluster_split = 0.1,  use_cosine = False,  use_transformer = False, \
-                                       num_tokens=25, num_layers= 2, device = 'cuda:0'):
+  def __init__(self , input_dim , emb_dim, alpha = 0.01, beta = 0.01,temp = 0.1, is_dict = False, dataset= 'MIR', iter_clust = 500, cluster_split = 0.1,  use_cosine = False,  use_transformer = False, \
+                                       num_tokens=25, num_layers= 2, mfcc = False,device = 'cuda:0', debug = 0):
       super().__init__()
 
       self.input_dim = input_dim
@@ -133,17 +61,20 @@ class wav2tok(nn.Module):
 
       self.emb_dim = emb_dim
 
+      self.is_dict = is_dict
+
       self.use_transformer = use_transformer
  
       self.cluster_split = cluster_split
 
       self.use_cosine = use_cosine
  
-      self.no_sim = no_sim
+      self.mfcc = mfcc
 
       self.alpha = alpha
        
       self.beta = beta
+      self.debug = debug
 
       if not self.use_transformer: 
            self.embs  = Emb(self.input_dim, self.emb_dim, self.num_layers)
@@ -176,9 +107,9 @@ class wav2tok(nn.Module):
 
 
 
-  def get_feats(self, x, mfcc= True):
+  def get_feats(self, x):
           
-        if mfcc:
+        if self.mfcc:
 
             mfccs = librosa.feature.mfcc(y=x, sr= 16000, n_mfcc= 13, n_fft= 368)
 
@@ -189,7 +120,7 @@ class wav2tok(nn.Module):
             concat = concat.T  
 
         else:
-            stft = librosa.stft(y =x , sr = 16000, n_fft = 1024)
+            stft = librosa.stft(y =x , n_fft = 1024)
        
             stft = np.abs(stft)
             concat = stft.T
@@ -207,8 +138,7 @@ class wav2tok(nn.Module):
        X = []
 
        tr = random.sample(tr, int(self.cluster_split* len(tr)))
-       if dataset == 'librispeech'
-
+       if not self.is_dict :
 
   
          for i in tr:
@@ -227,6 +157,9 @@ class wav2tok(nn.Module):
 
               X.extend(a1)
 
+              if self.debug ==1:
+                   break
+
        else:
 
           for i in tr.keys():
@@ -243,6 +176,11 @@ class wav2tok(nn.Module):
 
                  X.extend(a1)
 
+                 if self.debug ==1:
+                     break
+
+              if self.debug ==1:
+                   break
 
 
      
@@ -269,7 +207,9 @@ class wav2tok(nn.Module):
       for i in unique1:
 
          label1 = i.repeat(tokens1.shape[0])
+        # print(label1)
 
+        
          match1 = torch.where(tokens1.cpu() == label1.cpu(),torch.tensor( 1.0),torch.tensor(0.0))
 
          inds = torch.nonzero(match1, as_tuple = False).squeeze()
@@ -301,7 +241,7 @@ class wav2tok(nn.Module):
        x, lab = self.inter_dict_weights(x, lab , dict1)
 
        x= torch.cat(x, 0)
-       lab = torch.tensor(lab).to(self.device)
+       lab = torch.tensor(lab).to(self.device).unsqueeze(1)
 
        if not self.use_cosine:
              x= self.class_dis(x)
@@ -321,9 +261,7 @@ class wav2tok(nn.Module):
 
 		
            if self.use_cosine:
-	      diff = torch.cosine_similarity(el.float(), codes.float(), dim=-1).type_as(
-                                codes
-                                  )
+                   diff = torch.cosine_similarity(el.float(), codes.float(), dim=-1).type_as(codes)
       
 	
 	     
@@ -336,10 +274,9 @@ class wav2tok(nn.Module):
   
               diff = diff.unsqueeze(0)
 
-
-            x.append(diff)
+           x.append(diff)
   
-            lab.append(i)
+           lab.append(i)
   
 
 
@@ -350,19 +287,21 @@ class wav2tok(nn.Module):
   def ctc_loss_cal(self, t, tok) :
          t = t.unsqueeze(1)
 
+         
+         #print(t)
 
-         inps =  torch.full(size =(1,) , fill_value = t.size(0), dtype= torch.int32)
-         targs = torch.full(size =(1,) , fill_value = tok.size(0), dtype= torch.int32)
+         inps =  torch.full(size =(1,) , fill_value = t.size(0), dtype= torch.long).cuda()
+         targs = torch.full(size =(1,) , fill_value = tok.size(0), dtype= torch.long).cuda()
 
 
- 
+         #print(inps, targs)
 
-         ctc_loss = ctc_loss(t, tok,inps, targs)
+         loss = ctc_loss(t, tok.unsqueeze(0),inps, targs)
 
 
 
       
-         return ctc_loss
+         return loss
 
   def get_embs(self, x):
 
@@ -374,7 +313,7 @@ class wav2tok(nn.Module):
 
 
   def get_tokens(self,x, mfcc = False):
-      x = [torch.tensor(self.get_feats(i.cpu().numpy(), mfcc = mfcc)) for i in x]
+      x = [torch.tensor(self.get_feats(i.cpu().numpy())) for i in x]
       z = [self.embs(i.unsqueeze(0).to(self.device)).squeeze().detach() for i in x]
 
       t = []
@@ -399,7 +338,7 @@ class wav2tok(nn.Module):
             logits = logits/ self.temp
 
             #print(logits.shape)
-            t.append(logits.argmax(-1)) 
+            t.append(logits) 
 
       
       return z , t
@@ -421,6 +360,10 @@ class wav2tok(nn.Module):
    
       z1 , t1 = self.get_tokens(x1)
       z2 , t2 = self.get_tokens(x2)
+
+
+      #print(t1)
+
       bs = len(x1)
 
       loss_ctc= [] 
@@ -428,12 +371,14 @@ class wav2tok(nn.Module):
       for i in range(bs):
         s1 = torch.cat( [z1[i], z2[i]], 0)
 
+        #print(s1.shape)
 
         tks1 = torch.cat([t1[i], t2[i]], 0 )
- 
+        #print(tks1)
         tokens1= tks1.argmax(-1)
         unique1 = torch.unique(tokens1)
-        dict1 = self.gen_prototype(unique1, s1, tokens1)
+       # print(unique1)
+        dict1 = self.gen_prototype( s1, tokens1, unique1)
 	
 
 ### ENFORCE BLANK log softmax prob as  -negative infinity 
@@ -457,6 +402,8 @@ class wav2tok(nn.Module):
         l_ctc2 = 0
 
         if len(z1[i]) >= len(t2[i]):
+
+             #print(logits1.shape, targs1.shape)
 
              l_ctc1 = self.ctc_loss_cal(logits1,targs1)
 
@@ -726,7 +673,6 @@ class TransformerSentenceEncoderLayer(nn.Module):
             x = self.final_layer_norm(x)
 
         return x, attn
-
 
 
 
