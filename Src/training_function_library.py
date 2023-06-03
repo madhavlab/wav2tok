@@ -98,7 +98,9 @@ class DATA:
              utt = set[0]
              
              key = set[1]
-             
+             print(utt, key)
+
+             utt, _ = librosa.load(utt, sr = 16000)
              
              if self.single:
               
@@ -107,14 +109,15 @@ class DATA:
              
              utt2 = random.sample(self.dict[key],1)[0]
                
+             utt2, _ = librosa.load(utt2, sr = 16000) 
                
              if self.apply_augmentation :  
-               shift = random.sample(np.arange(-6,6),1)[0]  
+               shift = random.sample(np.arange(-6,6).tolist(),1)[0]  
             
                utt2 = librosa.effects.pitch_shift(utt2,\
                                        sr =16000, n_steps = shift)  
                                        
-               rate - random.sample(np.arange(0.9,1.5,0.01),1)[0]    
+               rate = random.sample(np.arange(0.9,1.5,0.01).tolist(),1)[0]    
                                        
                utt2 = librosa.effects.time_stretch(utt2,  rate = rate)
              
@@ -126,7 +129,7 @@ class DATA:
                  
                  utt3 = random.sample(self.dict[nkey],1)[0]
                  
-                 
+                 utt3, _ = librosa.load(utt3, sr = 16000) 
              
              if self.same_length :
              
@@ -154,7 +157,7 @@ class DATA:
                     
                    if self.is_triplet:
                    
-                      utt3 = librosa.effects.time_stretch(utt2, rate = len_/len3)
+                      utt3 = librosa.effects.time_stretch(utt3, rate = len_/len3)
                  
                        
                  
@@ -362,9 +365,6 @@ def Trainer(model, optimizer, dataset, is_dict= True, is_triplet= False, single 
                apply_augmentation = False, clip = False, epoch_start = 0,scheduler = None, EPOCHS=100, \
                autosave= 5, patience= 5, name = None, device = 'cuda',debug = 0, batch_size = 4, ):
 
-      if debug:
-          print('DEBUG MODE!!!')
-   
       train_dataloader, test_dataloader, num_iter = DATALOADER(dataset= dataset, is_dict= is_dict , is_triplet= is_triplet, \
                                                                
                                                                single = single, same_length= same_length, \
@@ -442,5 +442,8 @@ def Trainer(model, optimizer, dataset, is_dict= True, is_triplet= False, single 
                                        
              
              
-        
-
+          
+    
+    
+    
+    
