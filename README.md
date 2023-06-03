@@ -3,6 +3,15 @@ Codes for Reproducibility
 
 Paper link: https://openreview.net/forum?id=v8Mi8KU6056
 
+Citation (bibtex): 
+
+@inproceedings{banerjee2023wav2tok,
+  title={wav2tok: Deep Sequence Tokenizer for Audio Retrieval},
+  author={Banerjee, Adhiraj and Arora, Vipul},
+  booktitle={The Eleventh International Conference on Learning Representations},
+  year={2023}
+}
+
 
 # Repository Structure:
 
