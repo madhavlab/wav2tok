@@ -98,7 +98,7 @@ class DATA:
              utt = set[0]
              
              key = set[1]
-             print(utt, key)
+             #print(utt, key)
 
              utt, _ = librosa.load(utt, sr = 16000)
              
