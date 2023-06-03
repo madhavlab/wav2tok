@@ -8,11 +8,14 @@ Repository Structure:
 wav2tok/Src 
 
 
-make 3 more folders bin, weights
+make 3 more folders bin, weights, Dataset
 
 wav2tok/Src
+
        /bin 
+       
        /weights
+       
        /Dataset
 
 
