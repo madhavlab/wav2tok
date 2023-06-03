@@ -54,7 +54,7 @@ def collate_function3(batch):
 
 class DATA:
 
-    def __init__(self, dataset ,  same_length = False,is_triplet = False, is_dict =True, single = False, clip = False, clip_duration = 3, sr = 16000, apply_augmentation = False, data_mode= 0 ):
+    def __init__(self, dataset , sample_subdataset = False , subdata_split = 0.1, same_length = False,is_triplet = False, is_dict =True, single = False, clip = False, clip_duration = 3, sr = 16000, apply_augmentation = False, data_mode= 0 ):
     
          
           if is_dict:
@@ -66,7 +66,14 @@ class DATA:
              
           else:
           
+            
              self.X = load(dataset)[data_mode]
+          
+
+             if sample_subdataset:
+                    length = int(subdata_split* len(self.X))
+             
+                    self.X = random.sample(self.X, length)
           
           self.same_length = same_length
             
@@ -217,12 +224,18 @@ class DATA:
               
               
 
-def DATALOADER(dataset, is_dict= True, is_triplet= False, single = False, same_length= False, clip = False, clip_duration = 3, sr = 16000, apply_augmentation = False, BATCH_SIZE = 4, shuffle = [True, True]):
+def DATALOADER(dataset,sample_subdataset = False , subdata_split = 0.1, is_dict= True, is_triplet= False, single = False, same_length= False, clip = False, clip_duration = 3, sr = 16000, apply_augmentation = False, BATCH_SIZE = 4, shuffle = [True, True]):
 
 
    #dataset = load('DATASET_STFT')
 
-   train, test  = DATA(dataset,same_length = same_length ,is_triplet = is_triplet , is_dict= is_dict ,clip = clip,clip_duration = clip_duration, sr = sr ,apply_augmentation = apply_augmentation,data_mode = 0), DATA(dataset,same_length = same_length ,is_triplet = is_triplet, is_dict= is_dict,clip = clip,clip_duration = clip_duration, sr = sr, apply_augmentation = apply_augmentation, data_mode =1)
+   train, test  = DATA(dataset, sample_subdataset = sample_subdataset , subdata_split = subdata_split, \
+                      same_length = same_length ,is_triplet = is_triplet , is_dict= is_dict ,\
+                      clip = clip,clip_duration = clip_duration, sr = sr ,apply_augmentation = apply_augmentation,data_mode = 0), \
+   
+                 DATA(dataset, sample_subdataset = sample_subdataset , subdata_split = subdata_split,\
+                              same_length = same_length ,is_triplet = is_triplet, is_dict= is_dict,\
+                 clip = clip,clip_duration = clip_duration, sr = sr, apply_augmentation = apply_augmentation, data_mode =1)
                     
 
 
@@ -364,14 +377,20 @@ def eval_function(dataloader,is_triplet, single, model,epochs,  device= 'cuda',d
                                                       
 
 
-def Trainer(model, optimizer, dataset, is_dict= True, is_triplet= False, single = False, same_length= False, \
+def Trainer(model, optimizer, dataset, sample_subdataset = False, subdata_split = 0.1, is_dict= True, is_triplet= False, single = False, same_length= False, \
                apply_augmentation = False, clip = False, clip_duration = 3, sr = 16000,epoch_start = 0,scheduler = None, EPOCHS=100, \
                autosave= 5, patience= 5, name = None, device = 'cuda',debug = 0, batch_size = 4, ):
 
-      train_dataloader, test_dataloader, num_iter = DATALOADER(dataset= dataset, is_dict= is_dict , is_triplet= is_triplet, \
+
+
+      
+      #if not sample_subdataset:
+      train_dataloader, test_dataloader, num_iter = DATALOADER(dataset= dataset, sample_subdataset = sample_subdataset , subdata_split = subdata_split, is_dict= is_dict , is_triplet= is_triplet, \
                                                                
                                                                single = single, same_length= same_length, \
-                                                               apply_augmentation = apply_augmentation, clip = clip , clip_duration= clip_duration, sr = sr, BATCH_SIZE = batch_size )
+                                                               apply_augmentation = apply_augmentation, \
+                                                               clip = clip , clip_duration= clip_duration,\
+                                                                  sr = sr, BATCH_SIZE = batch_size )
       cnt = 0
 
       step_counter= epoch_start * num_iter
@@ -394,8 +413,17 @@ def Trainer(model, optimizer, dataset, is_dict= True, is_triplet= False, single 
 
       for epochs in range(EPOCHS):
          if epochs >= epoch_start:
-
-
+ 
+            if sample_subdataset:
+                 if epochs > 0 :
+                 
+                        train_dataloader, test_dataloader, num_iter = DATALOADER(dataset= dataset, is_dict= is_dict , is_triplet= is_triplet, \
+                                                               
+                                                               single = single, same_length= same_length, \
+                                                               apply_augmentation = apply_augmentation, \
+                                                               clip = clip , clip_duration= clip_duration,\
+                                                                  sr = sr, BATCH_SIZE = batch_size )                
+                 
 
             print(f"\n||||||EPOCH = {epochs}||||||\n<<<~TRAINING~>>>\n")
 
@@ -446,6 +474,14 @@ def Trainer(model, optimizer, dataset, is_dict= True, is_triplet= False, single 
              
              
           
+    
+    
+    
+    
+        
+
+    
+    
     
     
     
