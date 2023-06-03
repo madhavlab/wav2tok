@@ -93,7 +93,8 @@ class wav2tok(nn.Module):
       self.iter_clust = iter_clust
       self.device = device
 
-
+      if self.debug:
+           print('Model in Debug Mode')
 
 
   def initialize_classifier(self, cluster_centers):
