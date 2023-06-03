@@ -11,14 +11,19 @@ from sklearn.model_selection import train_test_split
 
 
 
-'''data = load('NPTEL_dataset')
+data = load('NPTEL_dataset')
 
 ### data in the form of a list of audios => [audio_dir1, audio_dir2, .....]
 
 audios = ['../Dataset/nptel-pure-set/nptel-pure/wav/'+ keys for keys in data.keys()]
 
-train, test = train_test_split(audios, test_size = 0.1)
-save([train, test], 'audios')'''
+audio_dict = {i : [audios[i]]*10 for i in range(len(audios))}
+
+train, test = audio_dict, audio_dict
+
+
+#train, test = train_test_split(audios, test_size = 0.1)
+save([train, test], 'audios')
 
 #print(data)
 dataset= 'audios' ###### wav2tok/bin/bird_audio.bin == [X_train, X_test]
@@ -46,4 +51,4 @@ scheduler = get_linear_schedule_with_warmup(optimizer,
                    num_training_steps = train_steps  )
 
 
-Trainer(model= model, optimizer = optimizer, dataset =dataset, is_dict =False, apply_augmentation = True, scheduler = scheduler, EPOCHS = 2, autosave = 1, name = 'Trialtok', debug = 1, batch_size = 1 )
+Trainer(model= model, optimizer = optimizer, dataset =dataset, is_dict =True, apply_augmentation = True, scheduler = scheduler, clip = True , clip_duration = 1 , sr =16000, EPOCHS = 2, autosave = 1, name = 'Trialtok', debug = 1, batch_size = 1 )
