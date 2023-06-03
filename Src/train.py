@@ -17,28 +17,35 @@ data = load('NPTEL_dataset')
 
 audios = ['../Dataset/nptel-pure-set/nptel-pure/wav/'+ keys for keys in data.keys()]
 
-audio_dict = {i : [audios[i]]*10 for i in range(len(audios))}
+#audio_dict = {i : [audios[i]]*10 for i in range(len(audios))}
 
-train, test = audio_dict, audio_dict
+#train, test = audio_dict, audio_dict
 
 
-#train, test = train_test_split(audios, test_size = 0.1)
-save([train, test], 'audios')
+train, test = train_test_split(audios, test_size = 0.6)
 
+valid , test = train_test_split(test, test_size = 0.5)
+save([train, valid], 'audios')
+
+save(test, 'test_audios')
+
+debug = 0
 #print(data)
 dataset= 'audios' ###### wav2tok/bin/bird_audio.bin == [X_train, X_test]
 
 
-model = wav2tok(39,256, dataset = dataset, mfcc = True, debug = 1 ).cuda()
+model = wav2tok(39,256, dataset = dataset, mfcc = True, debug = debug ).cuda()
 
-batch_size = 1
+
+
+batch_size = 16
 
 D = load('audios')
 dataset_length = len(D)
 
-EPOCHS = 2
+EPOCHS = 10
 
-train_steps = 2* dataset_length//batch_size
+train_steps = EPOCHS* dataset_length//batch_size
 
 warmup = 0.08
 
@@ -51,4 +58,4 @@ scheduler = get_linear_schedule_with_warmup(optimizer,
                    num_training_steps = train_steps  )
 
 
-Trainer(model= model, optimizer = optimizer, dataset =dataset, is_dict =True, apply_augmentation = True, scheduler = scheduler, clip = True , clip_duration = 1 , sr =16000, EPOCHS = 2, autosave = 1, name = 'Trialtok', debug = 1, batch_size = 1 )
+Trainer(model= model, optimizer = optimizer, dataset =dataset, is_dict =False, apply_augmentation = True, scheduler = scheduler, clip = True , clip_duration = 3 , sr =16000, EPOCHS = EPOCHS, autosave = 2, name = 'Trialtok', debug = debug, batch_size = batch_size )
