@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-from new_function_library import load , save 
+from new_function_library import load , save , load_weights, save_weights
 
 import torch.utils.data as data
 
@@ -54,8 +54,7 @@ def collate_function3(batch):
 
 class DATA:
 
-    def __init__(self, dataset ,same_length = False,is_triplet = False,\
-                                                  is_dict =True, single = False, clip = False, apply_augmentation = False, data_mode= 0 ):
+    def __init__(self, dataset ,  same_length = False,is_triplet = False, is_dict =True, single = False, clip = False, clip_duration = 3, sr = 16000, apply_augmentation = False, data_mode= 0 ):
     
          
           if is_dict:
@@ -78,8 +77,12 @@ class DATA:
           self.single = single
          
           self.clip = clip 
+   
+          self.clip_duration = clip_duration
             
-            
+          self.sr = sr
+           
+          #print(self.sr, sr) 
           self.apply_augmentation = apply_augmentation
           
           
@@ -98,9 +101,9 @@ class DATA:
              utt = set[0]
              
              key = set[1]
-             #print(utt, key)
+             #print(utt, key, self.clip)
 
-             utt, _ = librosa.load(utt, sr = 16000)
+             utt, _ = librosa.load(utt, sr = self.sr)
              
              if self.single:
               
@@ -109,13 +112,13 @@ class DATA:
              
              utt2 = random.sample(self.dict[key],1)[0]
                
-             utt2, _ = librosa.load(utt2, sr = 16000) 
+             utt2, _ = librosa.load(utt2, sr = self.sr) 
                
              if self.apply_augmentation :  
                shift = random.sample(np.arange(-6,6).tolist(),1)[0]  
             
                utt2 = librosa.effects.pitch_shift(utt2,\
-                                       sr =16000, n_steps = shift)  
+                                       sr =self.sr, n_steps = shift)  
                                        
                rate = random.sample(np.arange(0.9,1.5,0.01).tolist(),1)[0]    
                                        
@@ -129,7 +132,7 @@ class DATA:
                  
                  utt3 = random.sample(self.dict[nkey],1)[0]
                  
-                 utt3, _ = librosa.load(utt3, sr = 16000) 
+                 utt3, _ = librosa.load(utt3, sr = self.sr) 
              
              if self.same_length :
              
@@ -179,7 +182,7 @@ class DATA:
               utt, _ = librosa.load(utt, sr = 16000, mono = True)
               
               if self.clip:
-                clip_ = 3*16000
+                clip_ = self.clip_duration*self.sr
               
                 if len(utt) > clip_:
               
@@ -196,7 +199,7 @@ class DATA:
               shift = random.sample(np.arange(-6,6).tolist(),1)[0]  
             
               utt2 = librosa.effects.pitch_shift(utt,\
-                                       sr =16000, n_steps = shift)  
+                                       sr =self.sr, n_steps = shift)  
                                        
               rate = random.sample(np.arange(0.9,1.5,0.01).tolist(),1)[0]    
                                        
@@ -214,12 +217,12 @@ class DATA:
               
               
 
-def DATALOADER(dataset, is_dict= True, is_triplet= False, single = False, same_length= False, clip = False, apply_augmentation = False, BATCH_SIZE = 4, shuffle = [True, True]):
+def DATALOADER(dataset, is_dict= True, is_triplet= False, single = False, same_length= False, clip = False, clip_duration = 3, sr = 16000, apply_augmentation = False, BATCH_SIZE = 4, shuffle = [True, True]):
 
 
    #dataset = load('DATASET_STFT')
 
-   train, test  = DATA(dataset,same_length ,is_triplet, is_dict,clip,apply_augmentation, 0), DATA(dataset,same_length ,is_triplet, is_dict,clip, apply_augmentation,1)
+   train, test  = DATA(dataset,same_length = same_length ,is_triplet = is_triplet , is_dict= is_dict ,clip = clip,clip_duration = clip_duration, sr = sr ,apply_augmentation = apply_augmentation,data_mode = 0), DATA(dataset,same_length = same_length ,is_triplet = is_triplet, is_dict= is_dict,clip = clip,clip_duration = clip_duration, sr = sr, apply_augmentation = apply_augmentation, data_mode =1)
                     
 
 
@@ -362,13 +365,13 @@ def eval_function(dataloader,is_triplet, single, model,epochs,  device= 'cuda',d
 
 
 def Trainer(model, optimizer, dataset, is_dict= True, is_triplet= False, single = False, same_length= False, \
-               apply_augmentation = False, clip = False, epoch_start = 0,scheduler = None, EPOCHS=100, \
+               apply_augmentation = False, clip = False, clip_duration = 3, sr = 16000,epoch_start = 0,scheduler = None, EPOCHS=100, \
                autosave= 5, patience= 5, name = None, device = 'cuda',debug = 0, batch_size = 4, ):
 
       train_dataloader, test_dataloader, num_iter = DATALOADER(dataset= dataset, is_dict= is_dict , is_triplet= is_triplet, \
                                                                
                                                                single = single, same_length= same_length, \
-                                                               apply_augmentation = apply_augmentation, clip = clip , BATCH_SIZE = batch_size )
+                                                               apply_augmentation = apply_augmentation, clip = clip , clip_duration= clip_duration, sr = sr, BATCH_SIZE = batch_size )
       cnt = 0
 
       step_counter= epoch_start * num_iter
@@ -443,6 +446,12 @@ def Trainer(model, optimizer, dataset, is_dict= True, is_triplet= False, single 
              
              
           
+    
+    
+    
+    
+        
+
     
     
     
