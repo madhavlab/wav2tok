@@ -420,10 +420,10 @@ class wav2tok(nn.Module):
 
             # print(logits1.shape, targs1.shape)
 
-             l_ctc1 = self.ctc_loss_cal(logits1,targs2.unsqueeze(0))
+             l_ctc1 = self.ctc_loss_cal(logits1,targs1.unsqueeze(0))
 
         if len(z2[i]) >= len(t1[i]):
-             l_ctc2 = self.ctc_loss_cal(logits2,targs1.unsqueeze(0))  
+             l_ctc2 = self.ctc_loss_cal(logits2,targs2.unsqueeze(0))  
 
         l_ctc = self.alpha*l_ctc1 + self.beta * l_ctc2
 
