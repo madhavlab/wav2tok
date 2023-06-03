@@ -311,7 +311,7 @@ class wav2tok(nn.Module):
 
          #print(inps, targs)
 
-         loss = ctc_loss(t, tok.unsqueeze(0),inps, targs)
+         loss = ctc_loss(t, tok,inps, targs)
 
 
 
@@ -418,12 +418,12 @@ class wav2tok(nn.Module):
 
         if len(z1[i]) >= len(t2[i]):
 
-             #print(logits1.shape, targs1.shape)
+            # print(logits1.shape, targs1.shape)
 
-             l_ctc1 = self.ctc_loss_cal(logits1,targs1)
+             l_ctc1 = self.ctc_loss_cal(logits1,targs2.unsqueeze(0))
 
         if len(z2[i]) >= len(t1[i]):
-             l_ctc2 = self.ctc_loss_cal(logits2,targs2)  
+             l_ctc2 = self.ctc_loss_cal(logits2,targs1.unsqueeze(0))  
 
         l_ctc = self.alpha*l_ctc1 + self.beta * l_ctc2
 
@@ -688,6 +688,8 @@ class TransformerSentenceEncoderLayer(nn.Module):
             x = self.final_layer_norm(x)
 
         return x, attn
+
+
 
 
 
