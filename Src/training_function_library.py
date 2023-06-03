@@ -362,6 +362,9 @@ def Trainer(model, optimizer, dataset, is_dict= True, is_triplet= False, single 
                apply_augmentation = False, clip = False, epoch_start = 0,scheduler = None, EPOCHS=100, \
                autosave= 5, patience= 5, name = None, device = 'cuda',debug = 0, batch_size = 4, ):
 
+      if debug:
+          print('DEBUG MODE!!!')
+   
       train_dataloader, test_dataloader, num_iter = DATALOADER(dataset= dataset, is_dict= is_dict , is_triplet= is_triplet, \
                                                                
                                                                single = single, same_length= same_length, \
