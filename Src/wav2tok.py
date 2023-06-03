@@ -45,7 +45,19 @@ class Emb(nn.Module):
             return x
 
 
+def gen_data_from_dict(dict_):
 
+   X = []
+   for i in dict_.keys():
+   
+       el = dict_[i]
+       
+       for j in el:
+          
+          X.append(j)
+          
+   return X
+          
 
 
 class wav2tok(nn.Module):
@@ -93,8 +105,7 @@ class wav2tok(nn.Module):
       self.iter_clust = iter_clust
       self.device = device
 
-      if self.debug:
-           print('Model in Debug Mode')
+
 
 
   def initialize_classifier(self, cluster_centers):
@@ -135,6 +146,9 @@ class wav2tok(nn.Module):
   def cluster(self,dataset):
       
        tr = load(dataset)[0]
+
+       if type(tr) is dict:
+           tr = gen_data_from_dict(tr)
 
        X = []
 
