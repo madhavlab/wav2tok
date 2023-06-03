@@ -1,8 +1,10 @@
 # wav2tok: Deep Sequence Tokenizer for Audio Retrieval
 Codes for Reproducibility
 
+Par
 
-Repository Structure:
+
+# Repository Structure:
 
 
 wav2tok/Src 
@@ -21,7 +23,7 @@ wav2tok/Src
 
 
 
-#############  Training wav2tok   ################
+# #############  Training wav2tok   ################
 
 
 Keep dataset in wav2tok/Dataset
@@ -55,7 +57,7 @@ Make a list of data dictionaries and save as .bin file to wav2tok/bin
                 {class 1 : list of audio , class 2 : list of audio ...}
 
 
-########################## Code for Training wav2tok: #########################
+# ########################## Code for Training wav2tok: #########################
 
 We have a dedicated function for training a wav2tok model.
 
@@ -73,10 +75,10 @@ Functions used:
 
 
 
-################################# class wav2tok  ##########################################################
+# ################################# class wav2tok  ##########################################################
 
 
-######################## Args:
+# ######################## Args:
 
 
 
@@ -140,7 +142,7 @@ alpha , beta -> positive constants in likelihood loss
 
 
 
-###################### Functions:
+# ###################### Functions:
 
 
 forward -> input: seq1 , seq2, training_steps
@@ -205,7 +207,7 @@ inter_dict_weights -> calculates distances from codebook representations
     
 
 
-##################################### Details of Args in Trainer(...) function ####################################
+# ##################################### Details of Args in Trainer(...) function ####################################
 
 
     debug -> int, 1 for debug mode, 0 for work mode  
@@ -261,7 +263,7 @@ inter_dict_weights -> calculates distances from codebook representations
  
     
 
-############################### Weight Saving and loading ##############################################################
+# ############################### Weight Saving and loading ##############################################################
 
 
 The Trainer function saves the best weights as well as weights every 5 (default) epochs 
@@ -284,10 +286,10 @@ load_Weights -> input: model instance, epoch_id, name
 
 
 
-################ Args to Trainer(...) for different cases of audio dataset #############################################
+# ################ Args to Trainer(...) for different cases of audio dataset #############################################
 
 
-################## Case 1:
+# ################## Case 1:
 
 
 
@@ -324,7 +326,7 @@ apply_augmentation = True, if you want to sample another sequence of same class
 
 
 
-################## Case 2:
+# ################## Case 2:
 
  
 
@@ -353,4 +355,4 @@ clip = False
 
 apply_augmentation = doesn't matter similar sequence generated via audio augmentations
 
-################################# THANK YOU _/\_ _/\_ #################################################################################
+#  ################################# THANK YOU _/\_ _/\_ #################################################################################
