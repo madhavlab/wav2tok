@@ -1,4 +1,4 @@
-# Wav2Tok
+# wav2tok:Deep Sequence Tokenizer for Audio Retrieval
 Codes for Reproducibility
 
 
