@@ -117,7 +117,7 @@ dataset -> Dataset name for clustering ('bird_audio') / takes the training spilt
             
 
           
-cluster_split -> percentage of training to use for clustering (data is sampled randomly)
+cluster_split -> percentage of training data to use for clustering (data is sampled randomly)
                  (Default: 1.0)
 
 
