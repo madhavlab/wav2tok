@@ -302,14 +302,14 @@ load_Weights -> input: model instance, epoch_id, name
 
 
 
-wav2tok/bin/bird_audio.bin == [X_train, X_test]
+wav2tok/bin/audio.bin == [X_train, X_test]
 
 X_train, X_test -> dictionaries 
                    {class 1 : list of audio , class 2 : list of audio ...}
 
    
 
-dataset = 'bird_audio'
+dataset = 'audio'
 
 
 is_dict = True 
@@ -340,14 +340,14 @@ apply_augmentation = True, if you want to sample another sequence of same class
  
 
 
-wav2tok/bin/bird_audio.bin == [X_train, X_test]
+wav2tok/bin/audio.bin == [X_train, X_test]
 
 X_train, X_test -> list of audio paths [audio path 1, audio path 2, ...]
 
 
 
 
-dataset = 'bird_audio'
+dataset = 'audio'
 
 
 is_dict = False 
