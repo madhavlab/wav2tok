@@ -199,7 +199,7 @@ class DATA:
                   
                                        if (len(utt[i*clip_: (i+1)*clip_]) > 2*16000) ], 1)[0]
               else: 
-                  utt = uttS
+                  utt = utt
                                        
              # print(utt.shape)
                                        
