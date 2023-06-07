@@ -389,7 +389,7 @@ def Trainer(model, optimizer, dataset, sample_subdataset = False, subdata_split 
       #if not sample_subdataset:
       train_dataloader, test_dataloader, num_iter = DATALOADER(dataset= dataset, sample_subdataset = sample_subdataset , subdata_split = subdata_split, is_dict= is_dict , is_triplet= is_triplet, \
                                                                
-                                                               single = single, same_length= same_length, \
+                                                               is_single = is_single, same_length= same_length, \
                                                                apply_augmentation = apply_augmentation, \
                                                                clip = clip , clip_duration= clip_duration,\
                                                                   sr = sr, BATCH_SIZE = batch_size )
@@ -421,7 +421,7 @@ def Trainer(model, optimizer, dataset, sample_subdataset = False, subdata_split 
                  
                         train_dataloader, test_dataloader, num_iter = DATALOADER(dataset= dataset, is_dict= is_dict , is_triplet= is_triplet, \
                                                                
-                                                               single = single, same_length= same_length, \
+                                                               is_single = is_single, same_length= same_length, \
                                                                apply_augmentation = apply_augmentation, \
                                                                clip = clip , clip_duration= clip_duration,\
                                                                   sr = sr, BATCH_SIZE = batch_size )                
@@ -430,10 +430,10 @@ def Trainer(model, optimizer, dataset, sample_subdataset = False, subdata_split 
             print(f"\n||||||EPOCH = {epochs}||||||\n<<<~TRAINING~>>>\n")
 
 
-            step_counter = train_function(train_dataloader, is_triplet, single, model,\
+            step_counter = train_function(train_dataloader, is_triplet, is_single, model,\
                           optimizer, step_counter, epochs, scheduler, device,debug)
             print(f"\n||||||EPOCH = {epochs}||||||\n<<<~VALIDATING~>>>\n")
-            loss = eval_function(test_dataloader, is_triplet, single,\
+            loss = eval_function(test_dataloader, is_triplet, is_single,\
                                          model,epochs, device,debug)
 
 
