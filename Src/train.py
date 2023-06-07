@@ -50,6 +50,9 @@ if __name__ == '__main__':
 
     parser.add_argument("--clip_duration", type = float ,nargs='?', default = 3.0 )
     
+    parser.add_argument("--mfcc", type = int ,nargs='?', default = False)
+
+    
     parser.add_argument("--is_triplet", type = bool ,nargs='?', default = False )
 
     parser.add_argument("--is_single", type = bool ,nargs='?', default = False )
@@ -112,36 +115,47 @@ if __name__ == '__main__':
 
 
     args = parser.parse_args()
+   
+    D = load(self.dataset)
+    dataset_length = len(D)
 
+    if args.train_steps is not None:
+         train_steps = args.EPOCHS * dataset_length // args.batch_size
+    else:
+         train_steps = args.train_steps
 
-
-debug = 0
-#print(data)
-dataset= 'audios' ###### wav2tok/bin/bird_audio.bin == [X_train, X_test]
-
-
-model = wav2tok(39,256, dataset = dataset, mfcc = True, debug = debug ).cuda()
-
-
-
-batch_size = 16
-
-D = load('audios')
-dataset_length = len(D)
-
-EPOCHS = 10
-
-train_steps = EPOCHS* dataset_length//batch_size
-
-warmup = 0.08
-
-
-learning_rate = 2e-3
-optimizer = torch.optim.Adam(model.parameters(), lr = learning_rate, betas = (0.9, 0.98), eps = 1e-6, weight_decay = 1e-2 )
+    optimizer = torch.optim.Adam(model.parameters(), lr = args.learning_rate, betas = (0.9, 0.98), eps = 1e-6, weight_decay = 1e-2 )
  
-scheduler = get_linear_schedule_with_warmup(optimizer,
-                     num_warmup_steps = int(train_steps* warmup), \
+    if args.use_scheduler:
+         scheduler = get_linear_schedule_with_warmup(optimizer,
+                     num_warmup_steps = int(train_steps* args.warmup), \
                    num_training_steps = train_steps  )
+    else:
+         scheduler =None
+
+    model = wav2tok( args.input_dim , args.emb_dim, alpha = args.alpha, beta = args.beta,temp = args.temp , is_dict = args.is_dict,\
+                         dataset= args.dataset , iter_clust = args.iter_clust, cluster_split = args.cluster_split, \
+                          use_cosine = args.use_cosine,  use_transformer = args.use_transformer, \
+                                       num_tokens= args.num_tokens, num_layers= args.num_layers, mfcc = args.mfcc, sr = args.sr, \
+                            clip_duration = args.clip_duration, device = args.device, debug = args.debug ).to(args.device)
 
 
-Trainer(model= model, optimizer = optimizer, dataset =dataset, is_dict =False, apply_augmentation = True, scheduler = scheduler, clip = True , clip_duration = 3 , sr =16000, EPOCHS = EPOCHS, autosave = 2, name = 'Trialtok', debug = debug, batch_size = batch_size )
+
+
+    if args.load_dir is not None: 
+     
+        if args.best_model:
+           load_weights(model,'_best_'+ args.load_model_epochid, args.load_dir)
+        
+        else:
+           load_weights(model, args.load_model_epochid, args.load_dir)
+
+
+
+
+
+    Trainer(model = model, optimizer = optimizer, scheduler = args.scheduler, dataset = args.dataset, sample_subdataset = args.sample_subdataset, \
+                subdata_split = args.subdata_split, is_dict= args.is_dict,  is_triplet= args.is_triplet, is_single = args.is_single, \
+                same_length= args.same_length, apply_augmentation = args.apply_augmentation, clip = args.clip, clip_duration = args.clip_duration, \
+                sr = args.sr, epoch_start = args.epoch_start , EPOCHS=args.EPOCHS, autosave= args.autosave_epoch, patience= args.patience,\
+                name = args.name, device = args.device, debug = args.debug, batch_size = args.batch_size)
