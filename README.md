@@ -114,12 +114,6 @@ To train a wav2tok model just run in command prompt,
 
     --apply_augmentation -> Boolean (Default: False), works if is_dict == True, apply augmentations to pairs sampled from dictionary === (anchor, positive), apply augmentation to positive
 
-    --clip -> Boolean (Default: False), works if is_dict = False, if you want to clip the to some duration
-     
-    --clip_duration -> float (Default: 3), clip audio to {clip_duration} seconds
-
-    --sr -> int (Default: 16000), sampling rate of audio
-
     --batch_size -> int (Default: 4), Training batch size
 
     --EPOCHS -> int (Default: 100), Number of full data passes 
@@ -166,11 +160,7 @@ To train a wav2tok model just run in command prompt,
 
                                              We use BiLSTM encoder, you can tweak parameters 
                                                             in wav2tok/Src/wav2tok.py class Emb
-       
-
-
-
-
+  
     --input_dim -> int (Default: 39), input Feature dim (STFT dim or MFCC dim) 
 
     --emb_dim -> int (Default: 256), Embedding dim (encoder output dim)
@@ -178,37 +168,25 @@ To train a wav2tok model just run in command prompt,
     --num_tokens ->  int (Default: 50), number of tokens to use for tokenization 
 
     --num_layers -> int (Default: 2), number of layers to use for BiLSTM model (no effect if you want to use Transformer) 
-              
-
-
-
-
-
+          
     --device -> str (Default: 'cuda'), GPU device name
-
-
 
     --dataset -> str (Default: None),Dataset name for clustering ('audios') / takes the training spilt for clustering
 
-            
-
-          
     --cluster_split -> float (Default: 1.0), percentage of training data to use for clustering (data is sampled randomly)
                
-
-
     --iter_clust -> int   (Default: 500), number of training steps before each clustering session
     
+    --clip -> Boolean (Default: False), works if is_dict = False, if you want to clip the to some duration
+     
+    --clip_duration -> float (Default: 3), clip audio to {clip_duration} seconds
+
+    --sr -> int (Default: 16000), sampling rate of audio
 
     --use_cosine -> Boolean  (Default: False), use cosine similarity in matching task instead of parameterized similarity score
-                      
-
-
-
+           
     --temp -> float (Default: 0.1), temperature for the logits used in cross-entropy calculation
         
-
-
     --alpha , --beta -> floats  (Default: 0.01,0.01) positive constants in likelihood loss
                 
 
