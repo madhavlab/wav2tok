@@ -95,14 +95,7 @@ To train a wav2tok model just run in command prompt,
    
     --dataset -> str, Dataset filename (dataset: {filename}.bin)
 
-    --model -> Class wav2tok , model instance
-
-    --optimizer -> Class torch optimizer, optimizer instance
- 
-    --scheduler -> Class torch scheduler, learning rate scheduler
-
     --is_dict -> Boolean (Default: False), if Dataset is a dictionary or list 
-    
     
     --sample_subdataset -> Boolena (Default: False), sample random subsets of data for training on Large datasets 
                            Works only if --is_dict == False
