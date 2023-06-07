@@ -118,7 +118,7 @@ To train a wav2tok model just run in command prompt,
 
     --EPOCHS -> int (Default: 100), Number of full data passes 
 
-    --autosave -> int (Default: 5), autosave model parameters in {autosave} number of epochs
+    --autosave_epoch -> int (Default: 5), autosave model parameters in {autosave} number of epochs
 
     --patience -> int (Default: 5), stop training if evaluation metric doesn't increase for {patience} number of epochs
 
