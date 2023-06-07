@@ -201,7 +201,7 @@ To train a wav2tok model just run in command prompt,
     --epoch_start -> int (Default: 0), To start training at {epoch_start} epoch.
 
     --device -> str (Default: 'cuda'), GPU device name
-#Details on Args for optimizer and learning rate scheduler: 
+#Details on Args for optimizer, learning rate scheduler, weight saving and loading: 
      
       --learning_rate ->   float (Default: 2e-3), Learning rate for Training
       
@@ -209,7 +209,12 @@ To train a wav2tok model just run in command prompt,
 
       --warmup -> float (Default: 0.08), Percentage of training steps to be used for warm up 
 
+      --save_dir -> str (Default: Trialtok), Name of model for weight save file
 
+      --load_dir -> str (Default: None), Model name to load
+      --load_model_epochid -> int (Default: None), Epoch id to load 
+      
+      
 # Brief on the functions present in class wav2tok:
 
 
