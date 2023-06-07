@@ -16,12 +16,12 @@ Citation (bibtex):
 # Repository Structure:
 
 
-wav2tok/Src 
+    wav2tok/Src 
 
 
 make 3 more folders bin, weights, Dataset
 
-wav2tok/Src
+    wav2tok/Src
 
        /bin 
        
