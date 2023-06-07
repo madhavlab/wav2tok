@@ -292,9 +292,8 @@ X_train, X_test -> dictionaries
 
    
 
-    python3 train.py --dataset audios --is_dict True  --is_pairwise True --apply_augmentation True
-
-
+    python3 train.py --dataset audios --sr 16000 --is_dict True  --is_pairwise True --cluster_split 1.0  --apply_augmentation True \
+                     --iter_clust 1000 --input_dim 39 --emb_dim 256 --num_tokens 50 --batch_size 16 --name TrialTok
 
     apply_augmentation = True, if you want to sample another sequence of same class 
                            and apply augmentation to it
@@ -316,7 +315,8 @@ wav2tok/bin/audio.bin == [X_train, X_test]
 
 X_train, X_test -> list of audio paths [audio path 1, audio path 2, ...]
 
-     python3 train.py --dataset audios --is_dict False  --is_pairwise True 
+     python3 train.py --dataset audios --sr 16000 --is_dict False  --is_pairwise True --cluster_split 1.0 --iter_clust 1000 \
+                        --input_dim 39 --emb_dim 256 --num_tokens 50 --batch_size 16 --name TrialTok
 
 
     apply_augmentation = doesn't matter similar sequence generated via audio augmentations
