@@ -89,7 +89,7 @@ To train a wav2tok model just run in command prompt,
 
 
 
-# Details of Arguments for class wav2tok
+# Details of Args for class wav2tok
 
 
 #  Args:
