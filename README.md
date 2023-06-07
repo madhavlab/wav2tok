@@ -170,6 +170,8 @@ To train a wav2tok model just run in command prompt,
     --device -> str (Default: 'cuda'), GPU device name
 
     --dataset -> str (Default: None),Dataset name for clustering ('audios') / takes the training spilt for clustering
+    
+    --mfcc -> Boolean (Default: False), if you want to use MFCC features
 
     --cluster_split -> float (Default: 1.0), percentage of training data to use for clustering (data is sampled randomly)
                
