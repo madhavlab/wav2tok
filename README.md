@@ -41,7 +41,7 @@ Keep dataset in wav2tok/Dataset
 
 Make a list of data splits and save as .bin file wav2tok/bin
 
-    Bird_dataset.bin == [X_train , X_test]
+    audios.bin == [X_train , X_test]
 
     X_train, X_test -> lists of audio paths
 
