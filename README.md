@@ -169,14 +169,16 @@ To train a wav2tok model just run in command prompt,
     --scheduler -> Class torch scheduler, learning rate scheduler
 
     --is_dict -> Boolean (Default: False), if Dataset is a dictionary or list 
-
+    
+    --is_pairwise -> Boolean (Default: True),  if you want to train with batches of pairs of audio (anchor, positive)
+                     if True, --is_triplet == False, --single == False by Default  
     
     --is_triplet -> Boolean (Default: False), if you want to train with Batches of Triplets (anchor, positive, negative)
-
-    --single -> Bolean (Default: False), if you want to train with batches of audio (anchor)
-
-   
-    ##########    Default Training is done with pairs of audio (anchor. positive)
+                     if True, --is_pairwise == False, --is_single == False by Default  
+    --is_single -> Boolean (Default: False), if you want to train with batches of audio (anchor)
+                      if True, --is_pairwise == False, --is_triplet == False by Default  
+  
+    ##########    Default Training is done with pairs of audio (anchor. positive) ##############
 
 
     --same_length -> Boolean (Default: False), if you want to time stretch audios in each batch of (anchor) or (anchor. positive), (anchor, positive, negative) to same length  
@@ -209,20 +211,20 @@ To train a wav2tok model just run in command prompt,
 # Brief on the functions present in class wav2tok:
 
 
-forward -> input: seq1 , seq2, training_steps
+     forward -> input: seq1 , seq2, training_steps
 
            output: loss with gradients, logs
 
 
 
-cluster -> input: dataset name -> string ('bird_audio')
+    cluster -> input: dataset name -> string ('bird_audio')
 
            output: Performs clustering and 
                    sets the token classifier codebook
 
 
 
-get_feats -> input: audio-> wav , mfcc -> Boolean 
+     get_feats -> input: audio-> wav , mfcc -> Boolean 
 
              output: MFCCs if MFCC == True else STFT matrix 
                      (you can the parameters for extraction of features 
@@ -230,12 +232,12 @@ get_feats -> input: audio-> wav , mfcc -> Boolean
 
 
 
-get_embs -> input: audio -> STFT or MFCC
+    get_embs -> input: audio -> STFT or MFCC
 
             output: numpy array of Embeddings
 
 
-initialize_classifier -> input ->  Codebook of token representations, 
+    initialize_classifier -> input ->  Codebook of token representations, 
                                    shape: (number of tokens, Embedding dim)
                          output -> sets token classifier codebook as input
 
@@ -243,12 +245,12 @@ initialize_classifier -> input ->  Codebook of token representations,
 
 
 
-ctc_loss_cal -> input: logits of shape (Time, classes), token sequence
+    ctc_loss_cal -> input: logits of shape (Time, classes), token sequence
 
                 output: CTC loss or likelihood loss
 
 
-gen_prototype -> input: Concatenated sequences of representations {Z, Z'},
+    gen_prototype -> input: Concatenated sequences of representations {Z, Z'},
                         Concatenated sequences of tokens {T,T'},
                         Unique tokens in concatenated sequence {T,T'}
             
@@ -256,13 +258,13 @@ gen_prototype -> input: Concatenated sequences of representations {Z, Z'},
 
 
 
-matching_loss -> input: Dictionary of Prototypes
+    matching_loss -> input: Dictionary of Prototypes
  
                  output: contrastive loss 
 
 
-
-inter_dict_weights -> calculates distances from codebook representations
+  
+    inter_dict_weights -> calculates distances from codebook representations
                       Helper function to matching_loss
 
 
@@ -279,20 +281,20 @@ Uses load_Weights and save_Weights functions in wav2tok/Src/new_function_library
 
 
 
-save_weights -> input: model instance, epoch_id, name
+    save_weights -> input: model instance, epoch_id, name
 
                 output: save weights in wav2tok/weights/{name}_{epoch}.bin
 
 
 
-load_Weights -> input: model instance, epoch_id, name 
+    load_Weights -> input: model instance, epoch_id, name 
 
                 output: load weight to model
 
 
 
 
-#  Args to Trainer(...) for different cases of audio dataset 
+#  Args to pass to wav2tok/Src/train.py for different cases of audio dataset 
 
 
 #  Case 1:
@@ -306,27 +308,16 @@ X_train, X_test -> dictionaries
 
    
 
-dataset = 'audio'
+    python3 train.py --dataset audios --is_dict True  --is_pairwise True --apply_augmentation True
 
 
-is_dict = True 
 
-is_triplet = False 
-
-single = False
-
-same_length = False 
-
-
-clip = False 
-
-
-apply_augmentation = True, if you want to sample another sequence of same class 
+    apply_augmentation = True, if you want to sample another sequence of same class 
                            and apply augmentation to it
 
 
 
-                     False , if you want to only sample another sequence of same class 
+                     False , if you want to only sample another sequence of same class
 
 
 
@@ -341,24 +332,9 @@ wav2tok/bin/audio.bin == [X_train, X_test]
 
 X_train, X_test -> list of audio paths [audio path 1, audio path 2, ...]
 
+     python3 train.py --dataset audios --is_dict False  --is_pairwise True 
 
 
-
-dataset = 'audio'
-
-
-is_dict = False 
-
-is_triplet = False 
-
-single = False
-
-same_length = False 
-
-
-clip = False 
-
-
-apply_augmentation = doesn't matter similar sequence generated via audio augmentations
+    apply_augmentation = doesn't matter similar sequence generated via audio augmentations
 
 
