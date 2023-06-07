@@ -377,10 +377,12 @@ def eval_function(dataloader,is_triplet, single, model,epochs,  device= 'cuda',d
                                                       
 
 
-def Trainer(model, optimizer, dataset, sample_subdataset = False, subdata_split = 0.1, is_dict= True, is_triplet= False, single = False, same_length= False, \
+def Trainer(model, optimizer, dataset, sample_subdataset = False, subdata_split = 0.1, is_dict= True,  is_triplet= False, is_single = False, same_length= False, \
                apply_augmentation = False, clip = False, clip_duration = 3, sr = 16000,epoch_start = 0,scheduler = None, EPOCHS=100, \
                autosave= 5, patience= 5, name = None, device = 'cuda',debug = 0, batch_size = 4, ):
 
+
+         
 
 
       
