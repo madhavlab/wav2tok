@@ -49,6 +49,16 @@ if __name__ == '__main__':
     parser.add_argument("--clip", type = bool ,nargs='?', default = False )
 
     parser.add_argument("--clip_duration", type = float ,nargs='?', default = 3.0 )
+    
+    parser.add_argument("--is_triplet", type = bool ,nargs='?', default = False )
+
+    parser.add_argument("--is_single", type = bool ,nargs='?', default = False )
+    
+    parser.add_argument("--same_length", type = bool ,nargs='?', default = False )
+
+    parser.add_argument("--apply_augmentation", type = bool ,nargs='?', default = False )
+
+    parser.add_argument("--autosave_epoch", type = int ,nargs='?', default = 5 )
   
     parser.add_argument("--cluster_split", type = float ,nargs='?', default = 1.0, required='True' )
     
@@ -76,7 +86,7 @@ if __name__ == '__main__':
 
     parser.add_argument("--batch_size", help = 'Batch Size', type = int,nargs='?', default = 4, required='True')
 
-    parser.add_argument("--save_dir", type = str,nargs='?', default ='TrialTok', required= 'True' )
+    parser.add_argument("--name", type = str,nargs='?', default ='TrialTok', required= 'True' )
     
     parser.add_argument("--load_dir", type = str,nargs='?', default = None)
     
