@@ -125,7 +125,7 @@ To train a wav2tok model just run in command prompt,
 
 
 
-    --dataset -> Dataset name for clustering ('bird_audio') / takes the training spilt for clustering
+    --dataset -> str (Default: None),Dataset name for clustering ('audios') / takes the training spilt for clustering
 
             
 
@@ -161,6 +161,10 @@ To train a wav2tok model just run in command prompt,
    
     --dataset -> str, Dataset filename (dataset: {filename}.bin)
 
+
+
+
+
     --model -> Class wav2tok , model instance
 
     --optimizer -> Class torch optimizer, optimizer instance
@@ -168,7 +172,12 @@ To train a wav2tok model just run in command prompt,
     --scheduler -> Class torch scheduler, learning rate scheduler
 
     --is_dict -> Boolean (Default: False), if Dataset is a dictionary or list 
-  
+    
+    
+    --sample_subdataset -> Boolena (Default: False), sample random subsets of data for training on Large datasets 
+                           Works only if --is_dict == False
+
+    --subdata_split -> float (Default: 0.1), How big of a portion are the subdatasets in comparison to the large dataset
     
     --is_triplet -> Boolean (Default: False), if you want to train with Batches of Triplets (anchor, positive, negative)
                     
