@@ -48,7 +48,7 @@ Make a list of data splits and save as .bin file wav2tok/bin
                        [audio path 1, audio path 2, ...]
 
                      
-                       OR
+   ##                    OR
 
 
 
@@ -74,14 +74,14 @@ We have a dedicated function for training a wav2tok model.
 
 Functions used in wav2tok/Src/train.py:
 
-   wav2tok() from wav2tok/Src/wav2tok.py
+     wav2tok() from wav2tok/Src/wav2tok.py
 
-   Trainer() from wav2tok/Src/training_function_library.py
+    Trainer() from wav2tok/Src/training_function_library.py
 
 
 To train a wav2tok model just run in command prompt,
 
-   python3 train.py --args1 arg_value1 --args2 arg_value2 
+     python3 train.py --args1 arg_value1 --args2 arg_value2 
    
    
 #Arguments to pass: 
@@ -89,16 +89,16 @@ To train a wav2tok model just run in command prompt,
 
 
 
-#  class wav2tok 
+# Details of Arguments for class wav2tok
 
 
 #  Args:
 
 
 
-debug -> int, 1 for debug mode, 0 for work mode  
+    --debug -> int, 1 for debug mode, 0 for work mode  
 
-use_transformer -> Boolean (Default: False), if you want to use a transformer network as encoder ,
+    --use_transformer -> Boolean (Default: False), if you want to use a transformer network as encoder ,
                                              but you have to set the args in wav2tok/Src/wav2tok.py
                                              in class TransformerEncoder and TransformerSentenceEncoderLayer
 
@@ -109,54 +109,104 @@ use_transformer -> Boolean (Default: False), if you want to use a transformer ne
 
 
 
-input_dim -> input Feature dim (STFT dim) 
+    --input_dim -> input Feature dim (STFT dim) 
 
-emb_dim -> Embedding dim (encoder output dim)
+    --emb_dim -> Embedding dim (encoder output dim)
 
-num_tokens -> number of tokens to use for tokenization 
+    --num_tokens -> number of tokens to use for tokenization 
 
-num_layers -> number of layers to use for BiLSTM model (no effect if you want to use Transformer) 
+    --num_layers -> number of layers to use for BiLSTM model (no effect if you want to use Transformer) 
               (Default: 2)
 
 
 
 
 
-device -> str (Default: 'cuda'), GPU device name
+    --device -> str (Default: 'cuda'), GPU device name
 
 
 
-dataset -> Dataset name for clustering ('bird_audio') / takes the training spilt for clustering
+    --dataset -> Dataset name for clustering ('bird_audio') / takes the training spilt for clustering
 
             
 
           
-cluster_split -> percentage of training data to use for clustering (data is sampled randomly)
+    --cluster_split -> percentage of training data to use for clustering (data is sampled randomly)
                  (Default: 1.0)
 
 
-iter_clust -> number of training steps before each clustering session
+    --iter_clust -> number of training steps before each clustering session
               (Default: 500 training steps)
 
 
-use_cosine -> use cosine similarity in matching task instead of parameterized similarity score
+    --use_cosine -> use cosine similarity in matching task instead of parameterized similarity score
               (Default: False)              
 
 
 
-temp -> temperature for the logits used in cross-entropy calculation
+    --temp -> temperature for the logits used in cross-entropy calculation
         (Default: 0.1)
 
 
-alpha , beta -> positive constants in likelihood loss
+    --alpha , --beta -> positive constants in likelihood loss
                 (Default: 0.01,0.01)
 
 
 
+#  Details of Args for Trainer(...) function 
 
 
+    --debug -> int, 1 for debug mode, 0 for work mode  
 
-#  Functions:
+    
+   
+    --dataset -> str, Dataset filename (dataset: {filename}.bin)
+
+    --model -> Class wav2tok , model instance
+
+    --optimizer -> Class torch optimizer, optimizer instance
+ 
+    --scheduler -> Class torch scheduler, learning rate scheduler
+
+    --is_dict -> Boolean (Default: False), if Dataset is a dictionary or list 
+
+    
+    --is_triplet -> Boolean (Default: False), if you want to train with Batches of Triplets (anchor, positive, negative)
+
+    --single -> Bolean (Default: False), if you want to train with batches of audio (anchor)
+
+   
+    ##########    Default Training is done with pairs of audio (anchor. positive)
+
+
+    --same_length -> Boolean (Default: False), if you want to time stretch audios in each batch of (anchor) or (anchor. positive), (anchor, positive, negative) to same length  
+
+    --apply_augmentation -> Boolean (Default: False), works if is_dict == True, apply augmentations to pairs sampled from dictionary === (anchor, positive), apply augmentation to positive
+
+    --clip -> Boolean (Default: False), works if is_dict = False, if you want to clip the to some duration
+     
+    --clip_duration -> float (Default: 3), clip audio to {clip_duration} seconds
+
+    --sr -> int (Default: 16000), sampling rate of audio
+
+    --batch_size -> int (Default: 4), Training batch size
+
+    --EPOCHS -> int (Default: 100), Number of full data passes 
+
+    --autosave -> int (Default: 5), autosave model parameters in {autosave} number of epochs
+
+    --patience -> int (Default: 5), stop training if evaluation metric doesn't increase for {patience} number of epochs
+
+    --name -> str (Default: 'TrialTok' ), Model parameters save filename 
+
+    --epoch_start -> int (Default: 0), To start training at {epoch_start} epoch.
+
+    --device -> str (Default: 'cuda'), GPU device name
+
+    
+
+
+# Brief on the functions present in class wav2tok:
 
 
 forward -> input: seq1 , seq2, training_steps
@@ -214,64 +264,6 @@ matching_loss -> input: Dictionary of Prototypes
 
 inter_dict_weights -> calculates distances from codebook representations
                       Helper function to matching_loss
-
-
-
-
-    
-
-
-#  Details of Args in Trainer(...) function 
-
-
-    debug -> int, 1 for debug mode, 0 for work mode  
-
-    
-   
-    dataset -> str, Dataset filename (dataset: {filename}.bin)
-
-    model -> Class wav2tok , model instance
-
-    optimizer -> Class torch optimizer, optimizer instance
- 
-    scheduler -> Class torch scheduler, learning rate scheduler
-
-    is_dict -> Boolean (Default: False), if Dataset is a dictionary or list 
-
-    
-    is_triplet -> Boolean (Default: False), if you want to train with Batches of Triplets (anchor, positive, negative)
-
-    single -> Bolean (Default: False), if you want to train with batches of audio (anchor)
-
-   
-    ##########    Default Training is done with pairs of audio (anchor. positive)
-
-
-    same_length -> Boolean (Default: False), if you want to time stretch audios in each batch of (anchor) or (anchor. positive), (anchor, positive, negative) to same length  
-
-    apply_augmentation -> Boolean (Default: False), works if is_dict == True, apply augmentations to pairs sampled from dictionary === (anchor, positive), apply augmentation to positive
-
-    clip -> Boolean (Default: False), works if is_dict = False, if you want to clip the to some duration
-     
-    clip_duration -> float (Default: 3), clip audio to {clip_duration} seconds
-
-    sr -> int (Default: 16000), sampling rate of audio
-
-    batch_size -> int (Default: 4), Training batch size
-
-    EPOCHS -> int (Default: 100), Number of full data passes 
-
-    autosave -> int (Default: 5), autosave model parameters in {autosave} number of epochs
-
-    patience -> int (Default: 5), stop training if evaluation metric doesn't increase for {patience} number of epochs
-
-    name -> str (Default: 'TrialTok' ), Model parameters save filename 
-
-    epoch_start -> int (Default: 0), To start training at {epoch_start} epoch.
-
-    device -> str (Default: 'cuda'), GPU device name
-
-    
 
 
  
