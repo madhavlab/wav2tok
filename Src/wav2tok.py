@@ -62,7 +62,7 @@ def gen_data_from_dict(dict_):
 
 class wav2tok(nn.Module):
   def __init__(self , input_dim , emb_dim, alpha = 0.01, beta = 0.01,temp = 0.1, is_dict = False, dataset= 'MIR', iter_clust = 500, cluster_split = 0.1,  use_cosine = False,  use_transformer = False, \
-                                       num_tokens=25, num_layers= 2, mfcc = False,device = 'cuda:0', debug = 0):
+                                       num_tokens=25, num_layers= 2, mfcc = False, sr = 16000, clip_duration = 3, device = 'cuda:0', debug = 0):
       super().__init__()
 
       self.input_dim = input_dim
@@ -80,7 +80,11 @@ class wav2tok(nn.Module):
       self.cluster_split = cluster_split
 
       self.use_cosine = use_cosine
- 
+    
+      self.sr = sr
+	
+      self.clip_duration = clip_duration
+
       self.mfcc = mfcc
 
       self.alpha = alpha
@@ -123,7 +127,7 @@ class wav2tok(nn.Module):
           
         if self.mfcc:
 
-            mfccs = librosa.feature.mfcc(y=x, sr= 16000, n_mfcc= 13, n_fft= 368)
+            mfccs = librosa.feature.mfcc(y=x, sr= self.sr, n_mfcc= 13, n_fft= 368)
 
 
             deltas = librosa.feature.delta(mfccs, mode = 'constant')
@@ -157,14 +161,14 @@ class wav2tok(nn.Module):
 
   
          for i in tr:
-              a1, _  = librosa.load(i, sr = 16000)
+              a1, _  = librosa.load(i, sr = self.sr)
 
-              a_len = len(a1)//16000
+              a_len = len(a1)//self.sr
 
-              splits = a_len//3
+              splits = a_len//self.clip_duration
 
 
-              a1 = [a1[j*16000*3: (j+1)*16000*3] for j in range(splits)]
+              a1 = [a1[j*self.sr*self.clip_duration: (j+1)*self.sr*self.clip_duration] for j in range(splits)]
               
               a1 = [torch.tensor(self.get_feats(j)) for j in a1]
               
@@ -183,7 +187,7 @@ class wav2tok(nn.Module):
 
               for j in el:
 
-                 a1, _  = librosa.load(j, sr = 16000)                   
+                 a1, _  = librosa.load(j, sr = self.sr)                   
 
                  a1 = [torch.tensor(self.get_feats(k)) for k in a1]
               
