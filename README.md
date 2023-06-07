@@ -138,8 +138,6 @@ To train a wav2tok model just run in command prompt,
 
       --warmup -> float (Default: 0.08), Percentage of training steps to be used for warm up 
 
-      --save_dir -> str (Default: Trialtok), Name of model for weight save file
-
       --load_dir -> str (Default: None), Model name to load
       
       --load_model_epochid -> int (Default: None), Epoch id to load 
