@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--debug", type = int,nargs='?', default = 0, required='True' )
+    parser.add_argument("--debug", type = int,nargs='?', default = 0 )
    
     parser.add_argument("--dataset", type = str ,nargs='?', default = None, required='True' )
 
