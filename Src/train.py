@@ -145,7 +145,7 @@ if __name__ == '__main__':
     if args.load_dir is not None: 
      
         if args.best_model:
-           load_weights(model,'_best_'+ args.load_model_epochid, args.load_dir)
+           load_weights(model,'best_'+ args.load_model_epochid, args.load_dir)
         
         else:
            load_weights(model, args.load_model_epochid, args.load_dir)
