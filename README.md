@@ -84,7 +84,7 @@ To train a wav2tok model just run in command prompt,
      python3 train.py --args1 arg_value1 --args2 arg_value2 
    
    
-#Arguments to pass: 
+# Arguments to pass: 
        
 
 
