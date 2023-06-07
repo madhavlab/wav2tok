@@ -143,7 +143,9 @@ To train a wav2tok model just run in command prompt,
     
 #Details on Args for optimizer, learning rate scheduler, weight saving and loading: 
      
-      --learning_rate ->   float (Default: 2e-3), Learning rate for Training
+      --learning_rate ->   float (Default: 2e-3), Learning rate for Training (we use the ADAM optimizer with default settings for training)
+      
+      --use_scheduler -> Boolean (Default: True), if you want to use a learning rate scheduler (We use a linear learning rate scheduler with warmup)
       
       --train_steps -> int (Default: None, Calculated as EPOCHS* dataset_length //batch_size), number of training steps
 
