@@ -88,70 +88,6 @@ To train a wav2tok model just run in command prompt,
        
 
 
-
-# Details of Args for class wav2tok
-
-
-
-
-
-    --debug -> int, 1 for debug mode, 0 for work mode  
-
-    --use_transformer -> Boolean (Default: False), if you want to use a transformer network as encoder ,
-                                             but you have to set the args in wav2tok/Src/wav2tok.py
-                                             in class TransformerEncoder and TransformerSentenceEncoderLayer
-
-                                             We use BiLSTM encoder, you can tweak parameters 
-                                                            in wav2tok/Src/wav2tok.py class Emb
-       
-
-
-
-
-    --input_dim -> input Feature dim (STFT dim) 
-
-    --emb_dim -> Embedding dim (encoder output dim)
-
-    --num_tokens -> number of tokens to use for tokenization 
-
-    --num_layers -> number of layers to use for BiLSTM model (no effect if you want to use Transformer) 
-              (Default: 2)
-
-
-
-
-
-    --device -> str (Default: 'cuda'), GPU device name
-
-
-
-    --dataset -> str (Default: None),Dataset name for clustering ('audios') / takes the training spilt for clustering
-
-            
-
-          
-    --cluster_split -> percentage of training data to use for clustering (data is sampled randomly)
-                 (Default: 1.0)
-
-
-    --iter_clust -> number of training steps before each clustering session
-              (Default: 500 training steps)
-
-
-    --use_cosine -> use cosine similarity in matching task instead of parameterized similarity score
-              (Default: False)              
-
-
-
-    --temp -> temperature for the logits used in cross-entropy calculation
-        (Default: 0.1)
-
-
-    --alpha , --beta -> positive constants in likelihood loss
-                (Default: 0.01,0.01)
-
-
-
 #  Details of Args for Trainer(...) function 
 
 
@@ -223,6 +159,69 @@ To train a wav2tok model just run in command prompt,
       --load_dir -> str (Default: None), Model name to load
       --load_model_epochid -> int (Default: None), Epoch id to load 
       
+
+
+# Details of Args for class wav2tok
+
+
+
+
+
+    --debug -> int (Default: 0), 1 for debug mode, 0 for work mode  
+
+    --use_transformer -> Boolean (Default: False), if you want to use a transformer network as encoder ,
+                                             but you have to set the args in wav2tok/Src/wav2tok.py
+                                             in class TransformerEncoder and TransformerSentenceEncoderLayer
+
+                                             We use BiLSTM encoder, you can tweak parameters 
+                                                            in wav2tok/Src/wav2tok.py class Emb
+       
+
+
+
+
+    --input_dim -> int (Default: 39), input Feature dim (STFT dim or MFCC dim) 
+
+    --emb_dim -> int (Default: 256), Embedding dim (encoder output dim)
+
+    --num_tokens ->  int (Default: 50), number of tokens to use for tokenization 
+
+    --num_layers -> int (Default: 2), number of layers to use for BiLSTM model (no effect if you want to use Transformer) 
+              
+
+
+
+
+
+    --device -> str (Default: 'cuda'), GPU device name
+
+
+
+    --dataset -> str (Default: None),Dataset name for clustering ('audios') / takes the training spilt for clustering
+
+            
+
+          
+    --cluster_split -> float (Default: 1.0), percentage of training data to use for clustering (data is sampled randomly)
+               
+
+
+    --iter_clust -> int   (Default: 500), number of training steps before each clustering session
+    
+
+    --use_cosine -> Boolean  (Default: False), use cosine similarity in matching task instead of parameterized similarity score
+                      
+
+
+
+    --temp -> float (Default: 0.1), temperature for the logits used in cross-entropy calculation
+        
+
+
+    --alpha , --beta -> floats  (Default: 0.01,0.01) positive constants in likelihood loss
+                
+
+
       
 # Brief on the functions present in class wav2tok:
 
