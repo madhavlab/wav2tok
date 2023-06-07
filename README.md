@@ -54,13 +54,13 @@ Make a list of data splits and save as .bin file wav2tok/bin
 
 Make a list of data dictionaries and save as .bin file to wav2tok/bin 
 
-      Bird_dataset.bin == [X_train , X_test]
+      audios.bin == [X_train , X_test]
 
       X_train, X_test -> dictionaries of audio
 
-      Keys -> Classes or labels (call of parrot, call of crow)
+      Keys -> Classes or labels (song_id1, song_id2)
 
-      Values -> List of audio paths (10 utterances for call of parrot)
+      Values -> List of audio paths (10 utterances for song_id1)
 
 
                 {class 1 : list of audio , class 2 : list of audio ...}
@@ -72,15 +72,20 @@ We have a dedicated function for training a wav2tok model.
 
                      wav2tok/Src/train.py
 
-Set variables in wav2tok/Src/train.py
-
-Functions used:
+Functions used in wav2tok/Src/train.py:
 
    wav2tok() from wav2tok/Src/wav2tok.py
 
    Trainer() from wav2tok/Src/training_function_library.py
 
 
+To train a wav2tok model just run in command prompt,
+
+   python3 train.py --args1 arg_value1 --args2 arg_value2 
+   
+   
+#Arguments to pass: 
+       
 
 
 
