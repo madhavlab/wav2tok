@@ -128,7 +128,7 @@ To train a wav2tok model just run in command prompt,
 
     --device -> str (Default: 'cuda'), GPU device name
     
-#Details on Args for optimizer, learning rate scheduler, weight saving and loading: 
+#Details on Args for optimizer, learning rate scheduler, weight saving and loading
      
       --learning_rate ->   float (Default: 2e-3), Learning rate for Training (we use the ADAM optimizer with default settings for training)
       
