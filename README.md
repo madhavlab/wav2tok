@@ -157,7 +157,7 @@ To train a wav2tok model just run in command prompt,
       
       --load_model_epochid -> int (Default: None), Epoch id to load 
       
-
+      --best_model -> Boolean (Default: True), if you want to load the best version of model
 
 # Details of Args for class wav2tok
 
