@@ -169,16 +169,14 @@ To train a wav2tok model just run in command prompt,
     --scheduler -> Class torch scheduler, learning rate scheduler
 
     --is_dict -> Boolean (Default: False), if Dataset is a dictionary or list 
-    
-    --is_pairwise -> Boolean (Default: True),  if you want to train with batches of pairs of audio (anchor, positive)
-                     if True, --is_triplet == False, --single == False by Default  
+  
     
     --is_triplet -> Boolean (Default: False), if you want to train with Batches of Triplets (anchor, positive, negative)
-                     if True, --is_pairwise == False, --is_single == False by Default  
+                    
     --is_single -> Boolean (Default: False), if you want to train with batches of audio (anchor)
-                      if True, --is_pairwise == False, --is_triplet == False by Default  
+        
   
-    ##########    Default Training is done with pairs of audio (anchor. positive) ##############
+    ##########    Default Training is done with pairs of audio (anchor, positive) ##############
 
 
     --same_length -> Boolean (Default: False), if you want to time stretch audios in each batch of (anchor) or (anchor. positive), (anchor, positive, negative) to same length  
