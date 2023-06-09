@@ -126,7 +126,7 @@ if __name__ == '__main__':
                          dataset= args.dataset , iter_clust = args.iter_clust, cluster_split = args.cluster_split, \
                           use_cosine = args.use_cosine,  use_transformer = args.use_transformer, \
                                        num_tokens= args.num_tokens, num_layers= args.num_layers, mfcc = args.mfcc, sr = args.sr, \
-                            clip_duration = args.clip_duration, device = args.device, debug = args.debug ).to(args.device)
+                         clip = args.clip,   clip_duration = args.clip_duration, device = args.device, debug = args.debug ).to(args.device)
 
     
     if args.load_dir is not None: 
