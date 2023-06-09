@@ -170,8 +170,8 @@ class wav2tok(nn.Module):
 
                  splits = a_len//self.clip_duration
 
-
-                 a1 = [a1[j*self.sr*self.clip_duration: (j+1)*self.sr*self.clip_duration] for j in range(splits)]
+                 clip_ = int(self.sr*self.clip_duration)
+                 a1 = [a1[j*clip_: (j+1)*clip_] for j in range(splits)]
               
                  a1 = [torch.tensor(self.get_feats(j)) for j in a1]
 		
