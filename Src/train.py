@@ -139,7 +139,7 @@ if __name__ == '__main__':
     
     
 
-    if args.train_steps is not None:
+    if args.train_steps is None:
          train_steps = args.EPOCHS * dataset_length // args.batch_size
     else:
          train_steps = args.train_steps
