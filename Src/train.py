@@ -51,6 +51,8 @@ if __name__ == '__main__':
     parser.add_argument("--clip_duration", type = float ,nargs='?', default = 3.0 )
     
     parser.add_argument("--mfcc", type = bool ,nargs='?', default = False)
+    
+    parser.add_argument("--is_dict", type = bool ,nargs='?', default = False, required = True)
 
     
     parser.add_argument("--is_triplet", type = bool ,nargs='?', default = False )
