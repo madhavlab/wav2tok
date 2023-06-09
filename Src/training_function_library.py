@@ -231,9 +231,7 @@ def DATALOADER(dataset,sample_subdataset = False , subdata_split = 0.1, is_dict=
 
    train, test  = DATA(dataset, sample_subdataset = sample_subdataset , subdata_split = subdata_split, \
                       same_length = same_length ,is_triplet = is_triplet , is_dict= is_dict ,\
-                      clip = clip,clip_duration = clip_duration, sr = sr ,apply_augmentation = apply_augmentation,data_mode = 0), \
-   
-                 DATA(dataset, sample_subdataset = sample_subdataset , subdata_split = subdata_split,\
+                      clip = clip,clip_duration = clip_duration, sr = sr ,apply_augmentation = apply_augmentation,data_mode = 0), DATA(dataset, sample_subdataset = sample_subdataset , subdata_split = subdata_split,\
                               same_length = same_length ,is_triplet = is_triplet, is_dict= is_dict,\
                  clip = clip,clip_duration = clip_duration, sr = sr, apply_augmentation = apply_augmentation, data_mode =1)
                     
