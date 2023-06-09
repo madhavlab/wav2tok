@@ -95,24 +95,24 @@ To train a wav2tok model just run in command prompt,
    
     --dataset -> str, Dataset filename (dataset: {filename}.bin)
 
-    --is_dict -> Boolean (Default: False), if Dataset is a dictionary or list 
+    --is_dict -> int (Default: 0 -> False), if Dataset is a dictionary or list 
     
-    --sample_subdataset -> Boolena (Default: False), sample random subsets of data for training on Large datasets 
-                           Works only if --is_dict == False
+    --sample_subdataset -> int (Default: 0 -> False), sample random subsets of data for training on Large datasets 
+                           Works only if --is_dict == 0
 
     --subdata_split -> float (Default: 0.1), How big of a portion are the subdatasets in comparison to the large dataset
     
-    --is_triplet -> Boolean (Default: False), if you want to train with Batches of Triplets (anchor, positive, negative)
+    --is_triplet -> int (Default:  0 ->  False), if you want to train with Batches of Triplets (anchor, positive, negative)
                     
-    --is_single -> Boolean (Default: False), if you want to train with batches of audio (anchor)
+    --is_single -> int (Default:  0 ->  False), if you want to train with batches of audio (anchor)
         
   
     ##########    Default Training is done with pairs of audio (anchor, positive) ##############
 
 
-    --same_length -> Boolean (Default: False), if you want to time stretch audios in each batch of (anchor) or (anchor. positive), (anchor, positive, negative) to same length  
+    --same_length -> int (Default:  0 ->  False), if you want to time stretch audios in each batch of (anchor) or (anchor. positive), (anchor, positive, negative) to same length  
 
-    --apply_augmentation -> Boolean (Default: False), works if is_dict == True, apply augmentations to pairs sampled from dictionary === (anchor, positive), apply augmentation to positive
+    --apply_augmentation -> int (Default:  0 ->  False), works if is_dict == True, apply augmentations to pairs sampled from dictionary === (anchor, positive), apply augmentation to positive
 
     --batch_size -> int (Default: 4), Training batch size
 
@@ -132,7 +132,7 @@ To train a wav2tok model just run in command prompt,
      
       --learning_rate ->   float (Default: 2e-3), Learning rate for Training (we use the ADAM optimizer with default settings for training)
       
-      --use_scheduler -> Boolean (Default: True), if you want to use a learning rate scheduler (We use a linear learning rate scheduler with warmup)
+      --use_scheduler -> int (Default:  1 -> True), if you want to use a learning rate scheduler (We use a linear learning rate scheduler with warmup)
       
       --train_steps -> int (Default: None, Calculated as EPOCHS* dataset_length //batch_size), number of training steps
 
@@ -142,7 +142,7 @@ To train a wav2tok model just run in command prompt,
       
       --load_model_epochid -> int (Default: None), Epoch id to load 
       
-      --best_model -> Boolean (Default: True), if you want to load the best version of model
+      --best_model -> int (Default:  1 -> True), if you want to load the best version of model
 
 # Details of Args for class wav2tok
 
@@ -152,7 +152,7 @@ To train a wav2tok model just run in command prompt,
 
     --debug -> int (Default: 0), 1 for debug mode, 0 for work mode  
 
-    --use_transformer -> Boolean (Default: False), if you want to use a transformer network as encoder ,
+    --use_transformer -> int (Default:  0 -> False), if you want to use a transformer network as encoder ,
                                              but you have to set the args in wav2tok/Src/wav2tok.py
                                              in class TransformerEncoder and TransformerSentenceEncoderLayer
 
@@ -171,19 +171,19 @@ To train a wav2tok model just run in command prompt,
 
     --dataset -> str (Default: None),Dataset name for clustering ('audios') / takes the training spilt for clustering
     
-    --mfcc -> Boolean (Default: False), if you want to use MFCC features
+    --mfcc -> int (Default:  0 -> False), if you want to use MFCC features
 
     --cluster_split -> float (Default: 1.0), percentage of training data to use for clustering (data is sampled randomly)
                
     --iter_clust -> int   (Default: 500), number of training steps before each clustering session
     
-    --clip -> Boolean (Default: False), works if is_dict = False, if you want to clip the to some duration
+    --clip -> int (Default:  0 -> False), works if is_dict = False, if you want to clip the to some duration
      
     --clip_duration -> float (Default: 3), clip audio to {clip_duration} seconds
 
     --sr -> int (Default: 16000), sampling rate of audio
 
-    --use_cosine -> Boolean  (Default: False), use cosine similarity in matching task instead of parameterized similarity score
+    --use_cosine -> int  (Default:  0 -> False), use cosine similarity in matching task instead of parameterized similarity score
            
     --temp -> float (Default: 0.1), temperature for the logits used in cross-entropy calculation
         
@@ -292,7 +292,7 @@ X_train, X_test -> dictionaries
 
    
 
-    python3 train.py --dataset audios --sr 16000 --is_dict True --cluster_split 1.0  --apply_augmentation True \
+    python3 train.py --dataset audios --sr 16000 --is_dict 1 --cluster_split 1.0  --apply_augmentation 1 \
                      --iter_clust 1000 --input_dim 39 --emb_dim 256 --num_tokens 50 --batch_size 16 --name TrialTok
 
     apply_augmentation = True, if you want to sample another sequence of same class 
@@ -315,7 +315,7 @@ wav2tok/bin/audio.bin == [X_train, X_test]
 
 X_train, X_test -> list of audio paths [audio path 1, audio path 2, ...]
 
-     python3 train.py --dataset audios --sr 16000 --is_dict False --cluster_split 1.0 --iter_clust 1000 \
+     python3 train.py --dataset audios --sr 16000 --is_dict 0 --cluster_split 1.0 --iter_clust 1000 \
                         --input_dim 39 --emb_dim 256 --num_tokens 50 --batch_size 16 --name TrialTok
 
 
