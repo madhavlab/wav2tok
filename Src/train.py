@@ -40,28 +40,28 @@ if __name__ == '__main__':
    
     parser.add_argument("--dataset", type = str ,nargs='?', default = None, required='True' )
 
-    parser.add_argument("--sample_subdataset", type = bool ,nargs='?', default = False )
+    parser.add_argument("--sample_subdataset", type = int ,nargs='?', default = 0 )
     
     parser.add_argument("--subdata_split", type = float ,nargs='?', default = 0.1 )
        
     parser.add_argument("--sr", type = int ,nargs='?', default = 16000, required='True' )
 
-    parser.add_argument("--clip", type = bool ,nargs='?', default = False )
+    parser.add_argument("--clip", type = int ,nargs='?', default = 0 )
 
     parser.add_argument("--clip_duration", type = float ,nargs='?', default = 3.0 )
     
-    parser.add_argument("--mfcc", type = bool ,nargs='?', default = False)
+    parser.add_argument("--mfcc", type = int ,nargs='?', default = 0)
     
-    parser.add_argument("--is_dict", type = bool ,nargs='?', default = False, required = True)
+    parser.add_argument("--is_dict", type = int ,nargs='?', default = 0, required = 'True')
 
     
-    parser.add_argument("--is_triplet", type = bool ,nargs='?', default = False )
+    parser.add_argument("--is_triplet", type = int ,nargs='?', default = 0 )
 
-    parser.add_argument("--is_single", type = bool ,nargs='?', default = False )
+    parser.add_argument("--is_single", type = int ,nargs='?', default = 0 )
     
-    parser.add_argument("--same_length", type = bool ,nargs='?', default = False )
+    parser.add_argument("--same_length", type = int ,nargs='?', default = 0 )
 
-    parser.add_argument("--apply_augmentation", type = bool ,nargs='?', default = False )
+    parser.add_argument("--apply_augmentation", type = int ,nargs='?', default = 0 )
 
     parser.add_argument("--autosave_epoch", type = int ,nargs='?', default = 5 )
   
@@ -77,7 +77,7 @@ if __name__ == '__main__':
 
     parser.add_argument("--num_layers", type = int , nargs = '?' , default = 2)
 
-    parser.add_argument("--use_cosine", type = bool ,nargs='?', default = False )
+    parser.add_argument("--use_cosine", type = int ,nargs='?', default = 0 )
 
     parser.add_argument("--temp", type = float ,nargs='?', default = 0.1 )
 
@@ -85,7 +85,7 @@ if __name__ == '__main__':
     
     parser.add_argument("--beta", type = float ,nargs='?', default = 0.1 )
 
-    parser.add_argument("--use_transformer", type = bool ,nargs='?', default = False )
+    parser.add_argument("--use_transformer", type = int ,nargs='?', default = 0 )
 
     parser.add_argument("--device", type = str,nargs='?', default ='cuda:0' )
 
