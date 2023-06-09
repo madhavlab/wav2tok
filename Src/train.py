@@ -159,7 +159,7 @@ if __name__ == '__main__':
 
 
 
-    Trainer(model = model, optimizer = optimizer, scheduler = args.scheduler, dataset = args.dataset, sample_subdataset = args.sample_subdataset, \
+    Trainer(model = model, optimizer = optimizer, scheduler = scheduler, dataset = args.dataset, sample_subdataset = args.sample_subdataset, \
                 subdata_split = args.subdata_split, is_dict= args.is_dict,  is_triplet= args.is_triplet, is_single = args.is_single, \
                 same_length= args.same_length, apply_augmentation = args.apply_augmentation, clip = args.clip, clip_duration = args.clip_duration, \
                 sr = args.sr, epoch_start = args.epoch_start , EPOCHS=args.EPOCHS, autosave= args.autosave_epoch, patience= args.patience,\
