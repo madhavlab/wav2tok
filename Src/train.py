@@ -121,6 +121,24 @@ if __name__ == '__main__':
     D = load(args.dataset)
     dataset_length = len(D)
 
+
+    model = wav2tok( args.input_dim , args.emb_dim, alpha = args.alpha, beta = args.beta,temp = args.temp , is_dict = args.is_dict,\
+                         dataset= args.dataset , iter_clust = args.iter_clust, cluster_split = args.cluster_split, \
+                          use_cosine = args.use_cosine,  use_transformer = args.use_transformer, \
+                                       num_tokens= args.num_tokens, num_layers= args.num_layers, mfcc = args.mfcc, sr = args.sr, \
+                            clip_duration = args.clip_duration, device = args.device, debug = args.debug ).to(args.device)
+
+    
+    if args.load_dir is not None: 
+     
+        if args.best_model:
+           load_weights(model,'best_'+ args.load_model_epochid, args.load_dir)
+        
+        else:
+           load_weights(model, args.load_model_epochid, args.load_dir)
+    
+    
+
     if args.train_steps is not None:
          train_steps = args.EPOCHS * dataset_length // args.batch_size
     else:
@@ -135,22 +153,7 @@ if __name__ == '__main__':
     else:
          scheduler =None
 
-    model = wav2tok( args.input_dim , args.emb_dim, alpha = args.alpha, beta = args.beta,temp = args.temp , is_dict = args.is_dict,\
-                         dataset= args.dataset , iter_clust = args.iter_clust, cluster_split = args.cluster_split, \
-                          use_cosine = args.use_cosine,  use_transformer = args.use_transformer, \
-                                       num_tokens= args.num_tokens, num_layers= args.num_layers, mfcc = args.mfcc, sr = args.sr, \
-                            clip_duration = args.clip_duration, device = args.device, debug = args.debug ).to(args.device)
 
-
-
-
-    if args.load_dir is not None: 
-     
-        if args.best_model:
-           load_weights(model,'best_'+ args.load_model_epochid, args.load_dir)
-        
-        else:
-           load_weights(model, args.load_model_epochid, args.load_dir)
 
 
 
