@@ -389,7 +389,7 @@ def Trainer(model, optimizer, dataset, sample_subdataset = False, subdata_split 
       #if not sample_subdataset:
       train_dataloader, test_dataloader, num_iter = DATALOADER(dataset= dataset, sample_subdataset = sample_subdataset , subdata_split = subdata_split, is_dict= is_dict , is_triplet= is_triplet, \
                                                                
-                                                               is_single = is_single, same_length= same_length, \
+                                                               single = is_single, same_length= same_length, \
                                                                apply_augmentation = apply_augmentation, \
                                                                clip = clip , clip_duration= clip_duration,\
                                                                   sr = sr, BATCH_SIZE = batch_size )
@@ -402,8 +402,8 @@ def Trainer(model, optimizer, dataset, sample_subdataset = False, subdata_split 
       if epoch_start > 0 :
            print(f"|||||||||EVALUATING MODEL||||||||||")
 
-           loss_ =  eval_function(test_dataloader, is_triplet, single,\
-                                         model,epoch_start, device,debug)
+           loss_ =  eval_function(dataloader = test_dataloader, is_triplet= is_triplet,single= is_single,\
+                                        model =  model,epochs = epoch_start, device = device,debug = debug)
            print(f'\nModel Loss = {loss_} \n')
            loss_book = [loss_]
       else:
@@ -421,7 +421,7 @@ def Trainer(model, optimizer, dataset, sample_subdataset = False, subdata_split 
                  
                         train_dataloader, test_dataloader, num_iter = DATALOADER(dataset= dataset, is_dict= is_dict , is_triplet= is_triplet, \
                                                                
-                                                               is_single = is_single, same_length= same_length, \
+                                                               single = is_single, same_length= same_length, \
                                                                apply_augmentation = apply_augmentation, \
                                                                clip = clip , clip_duration= clip_duration,\
                                                                   sr = sr, BATCH_SIZE = batch_size )                
@@ -430,11 +430,11 @@ def Trainer(model, optimizer, dataset, sample_subdataset = False, subdata_split 
             print(f"\n||||||EPOCH = {epochs}||||||\n<<<~TRAINING~>>>\n")
 
 
-            step_counter = train_function(train_dataloader, is_triplet, is_single, model,\
-                          optimizer, step_counter, epochs, scheduler, device,debug)
+            step_counter = train_function(dataloader = train_dataloader, is_triplet= is_triplet,single =  is_single, model = model,\
+                          optimizer = optimizer, step_counter = step_counter, epochs = epochs, scheduler=  scheduler, device =  device, debug = debug)
             print(f"\n||||||EPOCH = {epochs}||||||\n<<<~VALIDATING~>>>\n")
-            loss = eval_function(test_dataloader, is_triplet, is_single,\
-                                         model,epochs, device,debug)
+            loss = eval_function(dataloader = test_dataloader, is_triplet = is_triplet, single = is_single,\
+                                        model =  model,epochs = epochs, device = device,debug = debug)
 
 
 
