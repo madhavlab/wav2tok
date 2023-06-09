@@ -189,7 +189,7 @@ class DATA:
               utt, _ = librosa.load(utt, sr = 16000, mono = True)
               
               if self.clip:
-                clip_ = self.clip_duration*self.sr
+                clip_ = int( self.clip_duration*self.sr)
               
                 if len(utt) > clip_:
               
