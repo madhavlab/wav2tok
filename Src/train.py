@@ -118,7 +118,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
    
-    D = load(self.dataset)
+    D = load(args.dataset)
     dataset_length = len(D)
 
     if args.train_steps is not None:
