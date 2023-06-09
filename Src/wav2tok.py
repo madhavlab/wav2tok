@@ -62,7 +62,7 @@ def gen_data_from_dict(dict_):
 
 class wav2tok(nn.Module):
   def __init__(self , input_dim , emb_dim, alpha = 0.01, beta = 0.01,temp = 0.1, is_dict = False, dataset= 'MIR', iter_clust = 500, cluster_split = 0.1,  use_cosine = False,  use_transformer = False, \
-                                       num_tokens=25, num_layers= 2, mfcc = False, sr = 16000, clip_duration = 3, device = 'cuda:0', debug = 0):
+                                       num_tokens=25, num_layers= 2, mfcc = False, sr = 16000, clip = False, clip_duration = 3, device = 'cuda:0', debug = 0):
       super().__init__()
 
       self.input_dim = input_dim
@@ -83,6 +83,7 @@ class wav2tok(nn.Module):
     
       self.sr = sr
 	
+      self.clip = clip
       self.clip_duration = clip_duration
 
       self.mfcc = mfcc
@@ -163,14 +164,21 @@ class wav2tok(nn.Module):
          for i in tr:
               a1, _  = librosa.load(i, sr = self.sr)
 
-              a_len = len(a1)//self.sr
+	
+	      if self.clip:
+                 a_len = len(a1)//self.sr
 
-              splits = a_len//self.clip_duration
+                 splits = a_len//self.clip_duration
 
 
-              a1 = [a1[j*self.sr*self.clip_duration: (j+1)*self.sr*self.clip_duration] for j in range(splits)]
+                 a1 = [a1[j*self.sr*self.clip_duration: (j+1)*self.sr*self.clip_duration] for j in range(splits)]
               
-              a1 = [torch.tensor(self.get_feats(j)) for j in a1]
+                 a1 = [torch.tensor(self.get_feats(j)) for j in a1]
+		
+		
+	      else:
+		
+		 a1 =[torch.tensor(self.get_feats(a1))]
               
               a1 = self.get_embs(a1)
 
