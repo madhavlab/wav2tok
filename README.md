@@ -201,7 +201,7 @@ To train a wav2tok model just run in command prompt,
 
 
 
-    cluster -> input: dataset name -> string ('bird_audio')
+    cluster -> input: dataset name -> string ('audios')
 
            output: Performs clustering and 
                    sets the token classifier codebook
