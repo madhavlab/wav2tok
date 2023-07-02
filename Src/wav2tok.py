@@ -341,7 +341,7 @@ class wav2tok(nn.Module):
 
   def get_tokens(self,x, mfcc = False):
       x = [torch.tensor(self.get_feats(i.cpu().numpy())) for i in x]
-      z = [self.embs(i.unsqueeze(0).to(self.device)).squeeze().detach() for i in x]
+      z = [self.embs(i.unsqueeze(0).to(self.device)).squeeze() for i in x]
 
       t = []
        
