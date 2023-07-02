@@ -281,7 +281,7 @@ class wav2tok(nn.Module):
 
 
   def inter_dict_weights(self, x, lab, dict1):
-       codes =  F.normalize(self.codebook, p= 2, dim = -1)
+       codes =  F.normalize(self.codebook, p= 2, dim = -1).detach()
        #print(weights.shape)
        for i in dict1.keys():
            el = dict1[i]
@@ -353,7 +353,7 @@ class wav2tok(nn.Module):
        
 
             ts = len(t_feats)
-            codes = F.normalize(self.codebook.unsqueeze(0).repeat(ts,1,1).permute(1,0,2), p =2 , dim = -1)
+            codes = F.normalize(self.codebook.unsqueeze(0).repeat(ts,1,1).permute(1,0,2), p =2 , dim = -1).detach()
 
 
 
