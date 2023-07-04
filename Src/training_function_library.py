@@ -198,6 +198,10 @@ class DATA:
                   utt = random.sample([utt[i*clip_: (i+1)*clip_] for i in range(slices) \
                   
                                        if (len(utt[i*clip_: (i+1)*clip_]) > 2*16000) ], 1)[0]
+
+                else:
+
+                   utt = utt
               else: 
                   utt = utt
                                        
