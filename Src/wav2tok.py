@@ -325,7 +325,7 @@ class wav2tok(nn.Module):
          #print(t)
 
          inps =  torch.full(size =(1,) , fill_value = t.size(0), dtype= torch.long).cuda()
-         targs = torch.full(size =(1,) , fill_value = tok.size(0), dtype= torch.long).cuda()
+         targs = torch.full(size =(1,) , fill_value = tok.size(1), dtype= torch.long).cuda()
 
 
          #print(inps, targs)
