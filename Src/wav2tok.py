@@ -148,7 +148,7 @@ class wav2tok(nn.Module):
 
 
 
-  def cluster(self,dataset):
+  def cluster(self,dataset, steps):
       
        tr = load(dataset)[0]
 
@@ -213,7 +213,14 @@ class wav2tok(nn.Module):
      
        X = np.concatenate(X)
        print(X.shape)
-       clusterer = KMeans(n_clusters = self.num_toks).fit(X)
+       if steps != 0 :
+	       
+           clusterer = KMeans(n_clusters = self.num_toks).fit(X)
+
+       else: 
+           clusterer = KMeans(n_clusters = self.num_toks, init = self.codebook.detach().cpu().numpy()).fit(X)
+
+	        
 
        cluster_centroids = clusterer.cluster_centers_
 
@@ -383,7 +390,7 @@ class wav2tok(nn.Module):
       if steps is not None:
          if steps % self.iter_clust == 0:
             print('Clustering')
-            self.cluster(self.dataset)
+            self.cluster(self.dataset, steps)
    
       z1 , t1 = self.get_tokens(x1)
       z2 , t2 = self.get_tokens(x2)
