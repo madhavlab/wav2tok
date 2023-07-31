@@ -98,10 +98,10 @@ class wav2tok(nn.Module):
       else:
            self.embs= TransformerEncoder(self.input_dim, self.emb_dim)
 
-      self.codebook = nn.Parameter(torch.FloatTensor(self.num_toks,self.emb_dim).uniform_())
+      self.codebook = nn.Parameter(torch.FloatTensor(self.num_toks,self.emb_dim//2).uniform_())
 
       
-      self.class_dis = nn.Linear(self.emb_dim ,1)
+      self.class_dis = nn.Linear(self.emb_dim//2 ,1)
       self.loss = nn.CrossEntropyLoss()
       self.temp = temp
    
@@ -111,6 +111,7 @@ class wav2tok(nn.Module):
       self.device = device
 
 
+      self.project = nn.Linear(self.emb_dim, self.emb_dim//2)
 
 
   def initialize_classifier(self, cluster_centers):
@@ -340,7 +341,8 @@ class wav2tok(nn.Module):
   def get_embs(self, x):
 
 
-         z = [self.embs(i.unsqueeze(0).to(self.device)).detach().squeeze().cpu().numpy() for i in x]  
+         z = [self.embs(i.unsqueeze(0).to(self.device)) for i in x]  
+	 z = [self.project(i).detach().squeeze().cpu().numpy() for i in z]
          return z
 
 
@@ -349,6 +351,7 @@ class wav2tok(nn.Module):
   def get_tokens(self,x, mfcc = False):
       x = [torch.tensor(self.get_feats(i.cpu().numpy())) for i in x]
       z = [self.embs(i.unsqueeze(0).to(self.device)).squeeze() for i in x]
+      z = [self.project(i) for i in z]
 
       t = []
        
