@@ -345,6 +345,14 @@ class wav2tok(nn.Module):
 	 z = [self.project(i).detach().squeeze().cpu().numpy() for i in z]
          return z
 
+	
+  def get_embs_raw_audio(self, x):
+         x = [torch.tensor(self.get_feats(i)) for i in x]
+
+         z = [self.embs(i.unsqueeze(0).to(self.device)) for i in x]  
+	 z = [self.project(i).detach().squeeze().cpu().numpy() for i in z]
+         return z
+
 
 
 
