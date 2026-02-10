@@ -115,4 +115,5 @@ If you find our work useful, please cite:
 ## Acknowledgments
 The code in this project is adapted or modifed from the following projects:
 - [BEST-STD](https://github.com/anupsingh15/BEST-STD) [MIT License]
+- [CTC python](https://github.com/vadimkantorov/ctc) 
 
