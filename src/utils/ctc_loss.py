@@ -1,4 +1,3 @@
-# TODO: try to replace fancy tensor indexing by gather / scatter 
 
 import math
 import torch
