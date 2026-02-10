@@ -1,0 +1,56 @@
+seed: 10
+
+train:
+  word_alignments_path: "/DATA/datasets/LibriSpeech/LibriSpeech_alignment_word/words_alignment_train-clean-100.pkl" 
+  audio_dir_path: "/DATA/datasets/LibriSpeech/" 
+  noise_dir_path: "/DATA/datasets/distortions/pointsource_noises"
+  
+valid:
+  word_alignments_path: "/DATA/datasets/LibriSpeech/LibriSpeech_alignment_word/words_alignment_test-clean.pkl"
+  audio_dir_path: "/DATA/datasets/LibriSpeech/"
+  noise_dir_path: "/DATA/datasets/distortions/noise_16k"
+
+add_augment: False
+snr_range: null #[0,20]
+use_ctc_loss: False
+
+# input audio 
+seglen: 1.0
+fs: 16000
+feats_type: "melspectrogram" #melspectrogram, spectrogram, raw
+n_mels: 96
+win_size: 0.025
+win_hop: 0.010
+
+# dataloader
+batchsize: 128
+load_workers: 30
+
+# Mamba encoder related parameters
+d_model: 96
+d_project: 512
+d_state: 128
+d_conv: 4
+expand: 8
+n_layer: 8
+headdim: 48
+block_type: "mamba2"
+
+# contrastive temperature 
+temperature: 0.2
+
+# Kmeans quantizer related parameters
+num_codewords: 512
+codeword_dims: 512
+beta: 0.1
+ema_decay: 0.7
+ortho_weight: 0
+
+#training related parameters  
+optimizer: "adam"
+lr: 0.0005
+wt_decay: 0.0001
+lr_scheduler: False
+cost_factors:
+  triplet_loss: 1.0
+  vq_loss: 1
