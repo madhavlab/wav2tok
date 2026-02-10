@@ -33,7 +33,12 @@ git clone https://github.com/madhavlab/wav2tok.git
 cd wav2tok
 ```
 
+### Create Environment
 
+
+```sh
+uv sync
+```
 
 
 ## Usage
