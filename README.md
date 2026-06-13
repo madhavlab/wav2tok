@@ -62,6 +62,7 @@ use_ctcloss: false
 Run training:
 
 ```bash
+cd src/
 uv run main.py --ckpt_dir /path/to/savedir
 ```
 
